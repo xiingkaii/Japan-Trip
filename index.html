@@ -2,49 +2,149 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>2026 Japan Trip</title>
     <style>
-        body { background-color: #f5f6f8; font-family: sans-serif; padding: 20px; }
-        .card { display: flex; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .date-box { background-color: #ba122b; color: white; padding: 15px; text-align: center; min-width: 60px; display: flex; flex-direction: column; justify-content: center; }
-        .date-box h2 { margin: 0; font-size: 24px; }
-        .date-box span { font-size: 12px; opacity: 0.8; }
-        .info-box { padding: 15px; flex-grow: 1; }
-        .info-box h3 { margin: 0 0 5px 0; font-size: 18px; color: #333; }
-        .info-box p { margin: 0; font-size: 14px; color: #666; }
+        /* 基础背景与字体设置 */
+        body { 
+            background-color: #f2f2f7; /* 浅灰底色，让卡片更突出 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px 20px 100px 20px; /* 底部留白，防止列表被导航栏挡住 */
+            color: #333;
+        }
+        
+        /* 顶部标题栏 */
+        .header-title { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
+        .header-subtitle { font-size: 13px; color: #888; margin-bottom: 25px; }
+
+        /* 卡片整体容器 */
+        .card { 
+            display: flex; 
+            background: white; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
+            margin-bottom: 12px; 
+            align-items: center;
+        }
+        
+        /* 左侧红底日期框 */
+        .date-box { 
+            background-color: #c0172e; /* 经典日本红 */
+            color: white; 
+            width: 65px; 
+            height: 70px;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            flex-shrink: 0; /* 防止被挤压 */
+        }
+        .date-box h2 { margin: 0; font-size: 20px; font-weight: bold; }
+        .date-box span { font-size: 12px; margin-top: 2px; opacity: 0.9; }
+        
+        /* 右侧文字内容区 */
+        .info-box { 
+            padding: 0 15px; 
+            flex-grow: 1; 
+        }
+        .info-box h3 { margin: 0 0 4px 0; font-size: 16px; font-weight: bold; color: #000; }
+        .info-box p { margin: 0; font-size: 12px; color: #999; }
+        
+        /* 右侧下拉小箭头 */
+        .arrow { 
+            padding-right: 15px; 
+            color: #d1d1d6; 
+            font-size: 12px;
+        }
+
+        /* 底部悬浮导航栏 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 20px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            z-index: 1000;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            color: #888;
+            text-decoration: none;
+        }
+        .nav-icon-wrapper {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+            margin-bottom: 4px;
+            font-size: 20px;
+        }
+        /* 当前选中的导航栏样式 */
+        .nav-item.active { color: #c0172e; font-weight: bold; }
+        .nav-item.active .nav-icon-wrapper { background-color: #fde8eb; } /* 浅红色圆底 */
     </style>
 </head>
 <body>
 
-    <h2 style="text-align: center;">2026 Japan Trip</h2>
+    <div class="header-title">🇯🇵 2026 Japan Trip</div>
+    <div class="header-subtitle">10天9夜 · 记账 App 版</div>
     
     <div id="itinerary-list">
-        <p style="text-align: center;">正在同步 Google Sheet 数据...</p>
+        <p style="text-align: center; color: #999; margin-top: 50px;">🔄 正在同步行程数据...</p>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <div class="nav-icon-wrapper">🗓️</div>
+            <span>行程</span>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon-wrapper">🏨</div>
+            <span>酒店</span>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon-wrapper">💰</div>
+            <span>记账</span>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon-wrapper">📝</div>
+            <span>备注</span>
+        </div>
     </div>
 
     <script>
-        // 🌟 在这里贴上你刚才获取的 Google Sheet CSV 链接！务必保留前后的单引号
+        // 🌟 在这里贴上你真实的 Google Sheet CSV 链接！务必保留前后的单引号
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?output=csv';
 
         fetch(csvUrl)
             .then(response => response.text())
             .then(data => {
-                const rows = data.split('\n').slice(1); // 跳过第一行的表头
+                const rows = data.split('\n').slice(1); 
                 const listContainer = document.getElementById('itinerary-list');
-                listContainer.innerHTML = ''; // 清空“正在同步”的加载提示
+                listContainer.innerHTML = ''; 
 
                 rows.forEach(row => {
-                    // 按照逗号分割每一列的数据
                     const columns = row.split(','); 
-                    // 确保这一行至少有4个数据才生成卡片，防止空白行报错
                     if (columns.length >= 4 && columns[0].trim() !== '') {
                         const day = columns[0];
                         const date = columns[1];
                         const title = columns[2];
                         const details = columns[3];
 
-                        // 动态生成跟照片里一样的卡片 HTML
+                        // 生成新版卡片的 HTML
                         const cardHtml = `
                             <div class="card">
                                 <div class="date-box">
@@ -55,6 +155,7 @@
                                     <h3>${title}</h3>
                                     <p>${details}</p>
                                 </div>
+                                <div class="arrow">▼</div>
                             </div>
                         `;
                         listContainer.innerHTML += cardHtml;
@@ -62,7 +163,7 @@
                 });
             })
             .catch(error => {
-                document.getElementById('itinerary-list').innerHTML = '<p style="color:red; text-align:center;">同步失败，请检查链接或网络连接。</p>';
+                document.getElementById('itinerary-list').innerHTML = '<p style="color:red; text-align:center;">同步失败，请检查链接或网络状态。</p>';
             });
     </script>
 </body>
