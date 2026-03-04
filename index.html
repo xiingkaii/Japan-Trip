@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 Japan Trip</title>
+    <style>
+        body { background-color: #f5f6f8; font-family: sans-serif; padding: 20px; }
+        .card { display: flex; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .date-box { background-color: #ba122b; color: white; padding: 15px; text-align: center; min-width: 60px; display: flex; flex-direction: column; justify-content: center; }
+        .date-box h2 { margin: 0; font-size: 24px; }
+        .date-box span { font-size: 12px; opacity: 0.8; }
+        .info-box { padding: 15px; flex-grow: 1; }
+        .info-box h3 { margin: 0 0 5px 0; font-size: 18px; color: #333; }
+        .info-box p { margin: 0; font-size: 14px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <h2 style="text-align: center;">2026 Japan Trip</h2>
+    
+    <div id="itinerary-list">
+        <p style="text-align: center;">正在同步 Google Sheet 数据...</p>
+    </div>
+
+    <script>
+        // 🌟 在这里贴上你刚才获取的 Google Sheet CSV 链接！务必保留前后的单引号
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?output=csv';
+
+        fetch(csvUrl)
+            .then(response => response.text())
+            .then(data => {
+                const rows = data.split('\n').slice(1); // 跳过第一行的表头
+                const listContainer = document.getElementById('itinerary-list');
+                listContainer.innerHTML = ''; // 清空“正在同步”的加载提示
+
+                rows.forEach(row => {
+                    // 按照逗号分割每一列的数据
+                    const columns = row.split(','); 
+                    // 确保这一行至少有4个数据才生成卡片，防止空白行报错
+                    if (columns.length >= 4 && columns[0].trim() !== '') {
+                        const day = columns[0];
+                        const date = columns[1];
+                        const title = columns[2];
+                        const details = columns[3];
+
+                        // 动态生成跟照片里一样的卡片 HTML
+                        const cardHtml = `
+                            <div class="card">
+                                <div class="date-box">
+                                    <h2>${day}</h2>
+                                    <span>${date}</span>
+                                </div>
+                                <div class="info-box">
+                                    <h3>${title}</h3>
+                                    <p>${details}</p>
+                                </div>
+                            </div>
+                        `;
+                        listContainer.innerHTML += cardHtml;
+                    }
+                });
+            })
+            .catch(error => {
+                document.getElementById('itinerary-list').innerHTML = '<p style="color:red; text-align:center;">同步失败，请检查链接或网络连接。</p>';
+            });
+    </script>
+</body>
+</html>
