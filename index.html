@@ -3,168 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026 Japan Trip</title>
+    <title>2026 Japan Trip App</title>
     <style>
-        /* 基础背景与字体设置 */
-        body { 
-            background-color: #f2f2f7; /* 浅灰底色，让卡片更突出 */
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            margin: 0; 
-            padding: 20px 20px 100px 20px; /* 底部留白，防止列表被导航栏挡住 */
-            color: #333;
+        /* 全局样式 */
+        :root {
+            --theme-red: #c0172e;
+            --bg-gray: #f5f6f8;
+            --text-main: #333;
+            --text-sub: #888;
         }
-        
-        /* 顶部标题栏 */
-        .header-title { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
-        .header-subtitle { font-size: 13px; color: #888; margin-bottom: 25px; }
-
-        /* 卡片整体容器 */
-        .card { 
-            display: flex; 
-            background: white; 
-            border-radius: 12px; 
-            overflow: hidden; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
-            margin-bottom: 12px; 
-            align-items: center;
-        }
-        
-        /* 左侧红底日期框 */
-        .date-box { 
-            background-color: #c0172e; /* 经典日本红 */
-            color: white; 
-            width: 65px; 
-            height: 70px;
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center;
-            flex-shrink: 0; /* 防止被挤压 */
-        }
-        .date-box h2 { margin: 0; font-size: 20px; font-weight: bold; }
-        .date-box span { font-size: 12px; margin-top: 2px; opacity: 0.9; }
-        
-        /* 右侧文字内容区 */
-        .info-box { 
-            padding: 0 15px; 
-            flex-grow: 1; 
-        }
-        .info-box h3 { margin: 0 0 4px 0; font-size: 16px; font-weight: bold; color: #000; }
-        .info-box p { margin: 0; font-size: 12px; color: #999; }
-        
-        /* 右侧下拉小箭头 */
-        .arrow { 
-            padding-right: 15px; 
-            color: #d1d1d6; 
-            font-size: 12px;
-        }
-
-        /* 底部悬浮导航栏 */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0 20px 0;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            z-index: 1000;
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 11px;
-            color: #888;
-            text-decoration: none;
-        }
-        .nav-icon-wrapper {
-            width: 40px;
-            height: 40px;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #e0e0e0; /* 电脑上看有个灰底 */
+            margin: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
-            border-radius: 20px;
-            margin-bottom: 4px;
-            font-size: 20px;
         }
-        /* 当前选中的导航栏样式 */
-        .nav-item.active { color: #c0172e; font-weight: bold; }
-        .nav-item.active .nav-icon-wrapper { background-color: #fde8eb; } /* 浅红色圆底 */
+        .app-container {
+            width: 100%;
+            max-width: 480px; /* 模拟手机宽度 */
+            background-color: var(--bg-gray);
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 90px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            overflow-x: hidden;
+        }
+
+        /* 顶部标题栏 */
+        .top-header { padding: 20px 20px 10px 20px; background: white; }
+        .top-header h2 { margin: 0; font-size: 20px; color: var(--text-main); }
+        .top-header p { margin: 5px 0 0 0; font-size: 12px; color: var(--text-sub); display: flex; justify-content: space-between; }
+
+        /* 页面切换控制 */
+        .page { display: none; padding: 15px; }
+        .page.active { display: block; }
+
+        /* ====== 界面 1：行程列表 (Itinerary) ====== */
+        .trip-card {
+            background: white; border-radius: 12px; margin-bottom: 12px;
+            display: flex; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            cursor: pointer;
+        }
+        .trip-date {
+            background-color: var(--theme-red); color: white;
+            width: 65px; height: 75px;
+            border-radius: 12px 0 0 12px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .trip-date strong { font-size: 18px; }
+        .trip-date span { font-size: 11px; margin-top: 3px; opacity: 0.9; }
+        .trip-info { padding: 0 15px; flex-grow: 1; font-size: 16px; font-weight: bold; color: var(--text-main); }
+        .trip-arrow { padding-right: 15px; color: #ccc; font-size: 14px; }
+
+        /* ====== 界面 2：记账 (Expenses) ====== */
+        .expense-card-red {
+            background: linear-gradient(135deg, #d31a38, #b01026); color: white;
+            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+        }
+        .expense-card-red p { margin: 0 0 5px 0; font-size: 13px; opacity: 0.9; }
+        .expense-card-red h1 { margin: 0 0 5px 0; font-size: 32px; }
+        .expense-card-red .rate { font-size: 12px; opacity: 0.8; }
+        
+        .expense-form { background: white; border-radius: 16px; padding: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+        .input-box { flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 8px; font-size: 14px; outline: none; }
+        .category-btn { background: #f0f4f8; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; color: #555; display: flex; align-items: center; gap: 5px; }
+        .submit-btn { width: 100%; background: #222; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+        .share-btn { text-align: center; color: var(--text-sub); font-size: 12px; }
+        
+        .history-title { margin: 20px 0 10px 0; font-size: 14px; color: var(--text-main); font-weight: bold; }
+        .history-item { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .history-item div span { display: block; font-size: 11px; color: var(--text-sub); margin-top: 4px; }
+
+        /* ====== 界面 3：备注 (Notes) ====== */
+        .note-category { border-radius: 10px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
+        .cat-green { background-color: #e8f5e9; color: #2e7d32; }
+        .cat-yellow { background-color: #fff8e1; color: #f57f17; }
+
+        /* ====== 底部悬浮导航栏 ====== */
+        .bottom-nav {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: white; display: flex; justify-content: space-around;
+            padding: 10px 0 25px 0; border-radius: 25px 25px 0 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-sub); text-decoration: none; cursor: pointer; }
+        .nav-icon { width: 45px; height: 35px; display: flex; justify-content: center; align-items: center; border-radius: 18px; font-size: 20px; margin-bottom: 4px; transition: 0.3s; }
+        
+        .nav-item.active { color: var(--theme-red); font-weight: bold; }
+        .nav-item.active .nav-icon { background-color: #fde8eb; } /* 选中的淡红色底 */
+
     </style>
 </head>
 <body>
 
-    <div class="header-title">🇯🇵 2026 Japan Trip</div>
-    <div class="header-subtitle">10天9夜 · 记账 App 版</div>
-    
-    <div id="itinerary-list">
-        <p style="text-align: center; color: #999; margin-top: 50px;">🔄 正在同步行程数据...</p>
+<div class="app-container">
+
+    <div class="top-header">
+        <h2>Customized Travel Web App</h2>
+        <p><span>(put your name here)</span> <span>Designed by isonnn</span></p>
+    </div>
+
+    <div id="page-itinerary" class="page active">
+        <div class="trip-card">
+            <div class="trip-date"><strong>D1</strong><span>20/2</span></div>
+            <div class="trip-info">大阪</div>
+            <div class="trip-arrow">▼</div>
+        </div>
+        <div class="trip-card">
+            <div class="trip-date"><strong>D2</strong><span>21/2</span></div>
+            <div class="trip-info">大阪 - 环球影城</div>
+            <div class="trip-arrow">▼</div>
+        </div>
+        <div class="trip-card">
+            <div class="trip-date"><strong>D3</strong><span>22/2</span></div>
+            <div class="trip-info">大阪 - 怀旧篇</div>
+            <div class="trip-arrow">▼</div>
+        </div>
+        <div class="trip-card">
+            <div class="trip-date"><strong>D4</strong><span>23/2</span></div>
+            <div class="trip-info">京都</div>
+            <div class="trip-arrow">▼</div>
+        </div>
+        <div class="trip-card">
+            <div class="trip-date"><strong>D5</strong><span>24/2</span></div>
+            <div class="trip-info">京都 / 名古屋</div>
+            <div class="trip-arrow">▼</div>
+        </div>
+        <div class="trip-card">
+            <div class="trip-date"><strong>D6</strong><span>25/2</span></div>
+            <div class="trip-info">白川乡</div>
+            <div class="trip-arrow">▼</div>
+        </div>
+    </div>
+
+    <div id="page-expense" class="page">
+        <div class="expense-card-red">
+            <p>总支出 (Total Spent)</p>
+            <h1>RM 3139.53</h1>
+            <div class="rate">≈ 120,751 円 (汇率 0.026)</div>
+        </div>
+
+        <div class="expense-form">
+            <div class="input-row">
+                <input type="number" class="input-box" placeholder="金额 (円 JPY)">
+                <button class="category-btn">🍔 吃喝</button>
+            </div>
+            <div class="input-row">
+                <input type="text" class="input-box" placeholder="备注 (例如：一兰拉面)">
+            </div>
+            <button class="submit-btn">➕ 记一笔</button>
+            <div class="share-btn">📋 复制报表分享给家人</div>
+        </div>
+
+        <div class="history-title">消费记录</div>
+        <div class="history-item">
+            <div>
+                <strong>一兰拉面</strong>
+                <span>28/01/2026 · 吃喝</span>
+            </div>
+            <div style="text-align: right;">
+                <strong style="color: var(--theme-red);">RM 12.58</strong>
+                <span style="color: var(--text-sub);">484 円</span>
+            </div>
+        </div>
+        <div class="history-item">
+            <div>
+                <strong>Suica 充值</strong>
+                <span>28/01/2026 · 交通</span>
+            </div>
+            <div style="text-align: right;">
+                <strong style="color: var(--theme-red);">RM 93.60</strong>
+                <span style="color: var(--text-sub);">3,600 円</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-notes" class="page">
+        <div class="note-category cat-green">
+            <span>⌚ 购物: 手表 (Casio/Vintage)</span> <span>▼</span>
+        </div>
+        <div class="note-category cat-green">
+            <span>👟 购物: 鞋子 (Onitsuka Tiger)</span> <span>▼</span>
+        </div>
+        <div class="note-category cat-green">
+            <span>📷 购物: 复古相机 (CCD/Film)</span> <span>▼</span>
+        </div>
+        <div class="note-category cat-yellow">
+            <span>🦸‍♂️ JUMP SHOP (心斋桥店)</span> <span>▼</span>
+        </div>
+        <div class="note-category cat-yellow">
+            <span>💳 Suica 交通卡</span> <span>▼</span>
+        </div>
+        <div class="note-category cat-yellow">
+            <span>🏎️ 日本街头卡丁车 (Street Kart)</span> <span>▼</span>
+        </div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active">
-            <div class="nav-icon-wrapper">🗓️</div>
+        <div class="nav-item active" onclick="switchTab('itinerary', this)">
+            <div class="nav-icon">📅</div>
             <span>行程</span>
         </div>
-        <div class="nav-item">
-            <div class="nav-icon-wrapper">🏨</div>
+        <div class="nav-item" onclick="switchTab('hotel', this)">
+            <div class="nav-icon">🏨</div>
             <span>酒店</span>
         </div>
-        <div class="nav-item">
-            <div class="nav-icon-wrapper">💰</div>
+        <div class="nav-item" onclick="switchTab('expense', this)">
+            <div class="nav-icon">💰</div>
             <span>记账</span>
         </div>
-        <div class="nav-item">
-            <div class="nav-icon-wrapper">📝</div>
+        <div class="nav-item" onclick="switchTab('notes', this)">
+            <div class="nav-icon">📝</div>
             <span>备注</span>
         </div>
     </div>
 
-    <script>
-        // 🌟 在这里贴上你真实的 Google Sheet CSV 链接！务必保留前后的单引号
-        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?output=csv';
+</div>
 
-        fetch(csvUrl)
-            .then(response => response.text())
-            .then(data => {
-                const rows = data.split('\n').slice(1); 
-                const listContainer = document.getElementById('itinerary-list');
-                listContainer.innerHTML = ''; 
+<script>
+    // 简单的 JavaScript 用来控制底部导航栏的点击和页面的切换
+    function switchTab(tabName, element) {
+        // 1. 移除所有底部图标的激活状态 (红色背景)
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => item.classList.remove('active'));
+        
+        // 2. 给当前点击的图标加上激活状态
+        element.classList.add('active');
 
-                rows.forEach(row => {
-                    const columns = row.split(','); 
-                    if (columns.length >= 4 && columns[0].trim() !== '') {
-                        const day = columns[0];
-                        const date = columns[1];
-                        const title = columns[2];
-                        const details = columns[3];
+        // 3. 隐藏所有页面
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => page.classList.remove('active'));
 
-                        // 生成新版卡片的 HTML
-                        const cardHtml = `
-                            <div class="card">
-                                <div class="date-box">
-                                    <h2>${day}</h2>
-                                    <span>${date}</span>
-                                </div>
-                                <div class="info-box">
-                                    <h3>${title}</h3>
-                                    <p>${details}</p>
-                                </div>
-                                <div class="arrow">▼</div>
-                            </div>
-                        `;
-                        listContainer.innerHTML += cardHtml;
-                    }
-                });
-            })
-            .catch(error => {
-                document.getElementById('itinerary-list').innerHTML = '<p style="color:red; text-align:center;">同步失败，请检查链接或网络状态。</p>';
-            });
-    </script>
+        // 4. 显示对应的页面 (行程、记账、备注)
+        // 注意：酒店页面暂时没有截图，所以我这里没写详细内容，点击会显示空白
+        const activePage = document.getElementById('page-' + tabName);
+        if(activePage) {
+            activePage.classList.add('active');
+        }
+    }
+</script>
+
 </body>
 </html>
