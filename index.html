@@ -263,7 +263,8 @@
                 data.slice(4).forEach(r => {
                     if(!r[0] || r[0] === 'Day') return;
                     if(!daysMap.has(r[0])) { daysMap.set(r[0], { n: r[0], d: r[1], l: r[3], e: [] }); }
-                    if(r[4]) { daysMap.get(r[0]).e.push({ time: r[2], act: r[4], rem: r[5], map: r[6] }); }
+                    // 🌟 重点改动 1：这里增加了 r[7]，用来读取 H 列的 Reference Links
+                    if(r[4]) { daysMap.get(r[0]).e.push({ time: r[2], act: r[4], rem: r[5], map: r[6], ref: r[7] }); }
                 });
 
                 const cont = document.getElementById('itinerary-container');
@@ -275,7 +276,11 @@
                             <span class="event-time">${e.time || ''}</span>
                             <div class="event-act">${e.act}</div>
                             ${e.rem ? `<div class="event-remark">${e.rem}</div>` : ''}
-                            ${e.map && e.map.startsWith('http') ? `<a href="${e.map}" target="_blank" class="nav-btn">📍 路线 (Route)</a>` : ''}
+                            
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                ${e.map && e.map.startsWith('http') ? `<a href="${e.map}" target="_blank" class="nav-btn">📍 路线 (Route)</a>` : ''}
+                                ${e.ref && e.ref.startsWith('http') ? `<a href="${e.ref}" target="_blank" class="nav-btn" style="background: #444; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🔗 参考 Link</a>` : ''}
+                            </div>
                         </div>`).join('');
                     cont.innerHTML += `
                         <div class="card">
