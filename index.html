@@ -380,12 +380,12 @@
             const list = document.getElementById('expense-list');
             list.innerHTML = '';
             let totalHome = 0;
-            let totalForeign = 0; // 新增：用来计算总日元
+            let totalForeign = 0; 
 
             expenses.forEach(e => {
                 const homeVal = e.amount * config.rate;
                 totalHome += homeVal;
-                totalForeign += parseFloat(e.amount); // 每次记账都累加日元
+                totalForeign += parseFloat(e.amount); 
                 
                 list.innerHTML += `
                     <div class="expense-item">
@@ -397,16 +397,16 @@
                             </div>
                         </div>
                         <div style="text-align:right">
-                            <div style="font-weight:800;font-size:1.1rem;color:#C41E3A">${config.foreign} ${parseFloat(e.amount).toLocaleString()}</div>
-                            <div style="font-size:0.75rem;color:#bbb">≈ ${config.home} ${homeVal.toFixed(2)}</div>
+                            <div style="font-weight:800;font-size:1.1rem;color:#C41E3A">${parseFloat(e.amount).toLocaleString()} ${config.foreign}</div>
+                            <div style="font-size:0.75rem;color:#bbb">≈ ${homeVal.toFixed(2)} ${config.home}</div>
                             <button class="btn-del" onclick="deleteEx(${e.id})">×</button>
                         </div>
                     </div>`;
             });
             
-            // 🌟 顶部红色卡片改动：大字显示总日元，小字显示总马币和汇率（系统会自动居中）
-            document.getElementById('display-total').innerText = `${config.foreign} ${totalForeign.toLocaleString()}`;
-            document.getElementById('rate-display').innerHTML = `≈ ${config.home} ${totalHome.toFixed(2)} &nbsp;|&nbsp; 汇率 1 ${config.foreign} = ${config.rate} ${config.home}`;
+            // 🌟 顶部红色卡片：数字放前面，货币单位 (JPY) 放后面
+            document.getElementById('display-total').innerText = `${totalForeign.toLocaleString()} ${config.foreign}`;
+            document.getElementById('rate-display').innerHTML = `≈ ${totalHome.toFixed(2)} ${config.home} &nbsp;|&nbsp; 汇率 1 ${config.foreign} = ${config.rate} ${config.home}`;
         }
 
         function copyReport() {
