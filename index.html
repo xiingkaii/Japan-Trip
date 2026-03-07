@@ -91,13 +91,17 @@
             flex: 1; padding: 12px; 
             border: 1px solid #eee; border-radius: 8px; 
             font-size: 1rem; outline: none; background: #fff;
+            min-width: 0; /* 魔法代码：防止输入框把外框撑破 */
+            box-sizing: border-box;
         }
         .cat-select {
-            flex: 0.6; 
+            flex: 1; /* 从 0.6 改成 1，实现 50/50 一半一半的完美比例 */
             padding: 12px;
             border: 1px solid #eee; border-radius: 8px;
             background: white; font-size: 0.9rem; font-weight: 600; color: #333;
             outline: none;
+            min-width: 0; /* 魔法代码：防止下拉菜单把外框撑破 */
+            box-sizing: border-box;
         }
 
         .btn-submit { width: 100%; background: #1a1a1a; color: white; padding: 14px; border-radius: 10px; font-weight: 700; border: none; font-size: 1rem; cursor: pointer; }
