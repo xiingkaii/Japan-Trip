@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -91,16 +90,16 @@
             flex: 1; padding: 12px; 
             border: 1px solid #eee; border-radius: 8px; 
             font-size: 1rem; outline: none; background: #fff;
-            min-width: 0; /* 魔法代码：防止输入框把外框撑破 */
+            min-width: 0; 
             box-sizing: border-box;
         }
         .cat-select {
-            flex: 1; /* 从 0.6 改成 1，实现 50/50 一半一半的完美比例 */
+            flex: 1; 
             padding: 12px;
             border: 1px solid #eee; border-radius: 8px;
             background: white; font-size: 0.9rem; font-weight: 600; color: #333;
             outline: none;
-            min-width: 0; /* 魔法代码：防止下拉菜单把外框撑破 */
+            min-width: 0; 
             box-sizing: border-box;
         }
 
@@ -522,5 +521,6 @@
             document.body.removeChild(el);
             alert("✅ 账单已复制！快去发给群组结账吧。");
         }
+    </script>
 </body>
 </html>
