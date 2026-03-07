@@ -160,11 +160,17 @@
 
     <div id="tab-hotel" class="tab-content"><div id="hotel-container"></div></div>
 
+
     <div id="tab-expense" class="tab-content">
         <div class="expense-header">
             <div style="font-size:0.9rem; opacity:0.9; margin-bottom:5px;">总支出 (Total Spent)</div>
             <div class="total-num" id="display-total">0.00</div>
             <div class="rate-info" id="rate-display">Loading rate...</div>
+            
+            <div id="settlement-box" style="margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.15); border-radius: 12px; font-size: 0.95rem; line-height: 1.5; text-align: center;">
+                <div style="color: #FFD700; font-weight: 800; margin-bottom: 6px;"><i class="fas fa-balance-scale"></i> 每日结账结余</div>
+                <div id="settle-text" style="color: rgba(255,255,255,0.9);">计算中...</div>
+            </div>
             
             <div>
                 <button class="btn-copy-report" onclick="copyReport()">
@@ -174,6 +180,16 @@
         </div>
 
         <div class="input-card">
+            <div class="input-group">
+                <input type="datetime-local" id="datetime-input" class="form-input" style="color: #555; font-weight: 600; font-size: 0.9rem;">
+            </div>
+            <div class="input-group">
+                <select id="payer-input" class="form-input" style="font-weight: 800; color: #C41E3A; background: #FFF0F2; border: 1px solid #FDCED5;">
+                    <option value="XK YM">💳 这笔由 XK & YM 付款</option>
+                    <option value="CL AL">💳 这笔由 CL & AL 付款</option>
+                </select>
+            </div>
+
             <div class="input-group">
                 <input type="number" id="amt-input" class="form-input" placeholder="金额">
                 <select id="cat-input" class="cat-select">
@@ -185,7 +201,7 @@
                     <option value="Ticket">🎫 Ticket</option>
                     <option value="Souvenir">🎁 Souvenir</option>
                     <option value="Shopping">🛍️ Shopping</option>
-                    <option value="Accommodation ">🏨 Accommodation </option>
+                    <option value="Accommodation">🏨 Accommodation</option>
                     <option value="Others">🧩 Others</option>
                 </select>
             </div>
@@ -197,6 +213,7 @@
 
         <div id="expense-list" style="padding:0 15px;"></div>
     </div>
+
 
     <nav class="tab-bar">
         <div class="tab-item active" onclick="switchTab('itinerary', this)"><span>📅</span>行程</div>
@@ -348,23 +365,32 @@
         function addExpense() {
             const amt = parseFloat(document.getElementById('amt-input').value);
             const note = document.getElementById('note-input').value;
-            const catSelect = document.getElementById('cat-input');
-            const cat = catSelect.value;
+            const cat = document.getElementById('cat-input').value;
+            const payer = document.getElementById('payer-input').value;
+            const datetimeVal = document.getElementById('datetime-input').value;
             
             if (!amt) return alert("请输入金额");
+
+            // 获取选择的时间，没选就默认当下
+            const finalDate = datetimeVal ? new Date(datetimeVal) : new Date();
 
             const newEx = {
                 id: Date.now(),
                 amount: amt,
                 note: note || cat,
                 cat: cat,
+                payer: payer,
                 icon: icons[cat] || 'fa-receipt',
-                date: new Date().toLocaleDateString()
+                timestamp: finalDate.getTime() // 🌟 记录精确到毫秒的时间戳，用来排序
             };
-            expenses.unshift(newEx);
+            
+            expenses.push(newEx);
             localStorage.setItem('my_trip_expenses', JSON.stringify(expenses));
+            
+            // 记完一笔后清空数据，让时间自动重置为最新
             document.getElementById('amt-input').value = '';
             document.getElementById('note-input').value = '';
+            document.getElementById('datetime-input').value = ''; 
             renderExpenses();
         }
 
@@ -377,36 +403,92 @@
         }
 
         function renderExpenses() {
+            // 🌟 每次打开页面，自动把时间输入框设定为“现在的精确时间”
+            const dtInput = document.getElementById('datetime-input');
+            if (dtInput && !dtInput.value) {
+                const now = new Date();
+                const tzOffset = now.getTimezoneOffset() * 60000;
+                dtInput.value = (new Date(now - tzOffset)).toISOString().slice(0, 16);
+            }
+
             const list = document.getElementById('expense-list');
             list.innerHTML = '';
-            let totalHome = 0;
-            let totalForeign = 0; 
+            
+            let totalHome = 0; let totalForeign = 0; 
+            let totalXKYM = 0; let totalCLAL = 0;
+
+            // 🌟 1. 顺着时间重新排序（最新的排在最上面）
+            expenses.sort((a, b) => {
+                const timeA = a.timestamp || a.id; 
+                const timeB = b.timestamp || b.id;
+                return timeB - timeA;
+            });
+
+            let lastDateStr = null;
 
             expenses.forEach(e => {
-                const homeVal = e.amount * config.rate;
+                const amt = parseFloat(e.amount);
+                const homeVal = amt * config.rate;
                 totalHome += homeVal;
-                totalForeign += parseFloat(e.amount); 
+                totalForeign += amt; 
                 
+                // 计算谁付的钱
+                const currentPayer = e.payer || 'XK YM';
+                if(currentPayer === 'XK YM') { totalXKYM += amt; } else { totalCLAL += amt; }
+
+                // 转换时间格式
+                const dateObj = new Date(e.timestamp || e.id);
+                const dateStr = dateObj.toLocaleDateString(); 
+                const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                // 🌟 2. 每天结束后画一条线分开
+                if (lastDateStr !== dateStr) {
+                    list.innerHTML += `
+                        <div style="text-align:center; margin: 25px 0 15px 0; position: relative;">
+                            <div style="position: absolute; top: 50%; left: 0; right: 0; border-top: 1px dashed #ccc; z-index: 1;"></div>
+                            <span style="position: relative; background: var(--bg); padding: 0 15px; color: #888; font-size: 0.8rem; font-weight: bold; z-index: 2; border-radius: 10px;">
+                                📅 ${dateStr}
+                            </span>
+                        </div>
+                    `;
+                    lastDateStr = dateStr;
+                }
+
                 list.innerHTML += `
                     <div class="expense-item">
                         <div style="display:flex; align-items:center; gap:12px;">
                             <div style="width:40px;height:40px;background:#FFF0F2;color:#C41E3A;border-radius:10px;display:flex;align-items:center;justify-content:center"><i class="fas ${e.icon}"></i></div>
                             <div>
                                 <div style="font-weight:700;color:#333">${e.note}</div>
-                                <div style="font-size:0.75rem;color:#999;margin-top:2px">${e.date} • ${e.cat}</div>
+                                <div style="font-size:0.75rem;color:#999;margin-top:2px">
+                                    🕒 ${timeStr} • <strong style="color:#C41E3A">${currentPayer}</strong> 付款
+                                </div>
                             </div>
                         </div>
                         <div style="text-align:right">
-                            <div style="font-weight:800;font-size:1.1rem;color:#C41E3A">${parseFloat(e.amount).toLocaleString()} ${config.foreign}</div>
+                            <div style="font-weight:800;font-size:1.1rem;color:#C41E3A">${amt.toLocaleString()} ${config.foreign}</div>
                             <div style="font-size:0.75rem;color:#bbb">≈ ${homeVal.toFixed(2)} ${config.home}</div>
                             <button class="btn-del" onclick="deleteEx(${e.id})">×</button>
                         </div>
                     </div>`;
             });
             
-            // 🌟 顶部红色卡片：数字放前面，货币单位 (JPY) 放后面
             document.getElementById('display-total').innerText = `${totalForeign.toLocaleString()} ${config.foreign}`;
             document.getElementById('rate-display').innerHTML = `≈ ${totalHome.toFixed(2)} ${config.home} &nbsp;|&nbsp; 汇率 1 ${config.foreign} = ${config.rate} ${config.home}`;
+
+            // 🌟 3. 核心结账算法 (自动 Offset 并除以 2)
+            const diff = totalXKYM - totalCLAL;
+            const oweAmount = Math.abs(diff / 2).toLocaleString(); 
+            let settleHtml = "";
+            
+            if (diff > 0) {
+                settleHtml = `CL & AL 需转账给 XK & YM<br><span style="font-size: 1.35rem; font-weight: 900; color: #FFF; display:inline-block; margin-top:4px;">${oweAmount} ${config.foreign}</span>`;
+            } else if (diff < 0) {
+                settleHtml = `XK & YM 需转账给 CL & AL<br><span style="font-size: 1.35rem; font-weight: 900; color: #FFF; display:inline-block; margin-top:4px;">${oweAmount} ${config.foreign}</span>`;
+            } else {
+                settleHtml = `目前账目已平，互不相欠 😎`;
+            }
+            document.getElementById('settle-text').innerHTML = settleHtml;
         }
 
         function copyReport() {
@@ -415,14 +497,22 @@
             let report = `🧾 旅游消费账单 (${new Date().toLocaleDateString()})\n`;
             report += `------------------------\n`;
             report += `💰 总支出: ${document.getElementById('display-total').innerText}\n`;
+            report += `------------------------\n`;
+            // 🌟 复制报告的时候，把结账结果也一并复制进去
+            report += `⚖️ 【结账结果】\n${document.getElementById('settle-text').innerText}\n`;
             report += `------------------------\n\n`;
             
             expenses.forEach(e => {
-                const homeVal = (e.amount * config.rate).toFixed(2);
-                report += `▪️ ${e.note} (${e.cat})\n   ${config.home} ${homeVal}  (${e.amount} ${config.foreign})\n\n`;
+                const amt = parseFloat(e.amount);
+                const homeVal = (amt * config.rate).toFixed(2);
+                const payer = e.payer || 'XK YM';
+                const dateObj = new Date(e.timestamp || e.id);
+                const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                report += `▪️ [${dateObj.toLocaleDateString()} ${timeStr}] ${e.note}\n   ${amt} ${config.foreign} (≈ ${homeVal} ${config.home}) | ${payer} 付款\n\n`;
             });
             
-            report += `Generated by XingKai Travel App`;
+            report += `Generated by XK Travel App`;
 
             const el = document.createElement('textarea');
             el.value = report;
@@ -430,8 +520,7 @@
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            alert("✅ 账单已复制！快去发给家人吧。");
+            alert("✅ 账单已复制！快去发给群组结账吧。");
         }
-    </script>
 </body>
 </html>
