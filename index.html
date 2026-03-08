@@ -370,7 +370,6 @@
             
             if (!amt) return alert("请输入金额");
 
-            // 获取选择的时间，没选就默认当下
             const finalDate = datetimeVal ? new Date(datetimeVal) : new Date();
 
             const newEx = {
@@ -380,13 +379,12 @@
                 cat: cat,
                 payer: payer,
                 icon: icons[cat] || 'fa-receipt',
-                timestamp: finalDate.getTime() // 🌟 记录精确到毫秒的时间戳，用来排序
+                timestamp: finalDate.getTime() 
             };
             
             expenses.push(newEx);
             localStorage.setItem('my_trip_expenses', JSON.stringify(expenses));
             
-            // 记完一笔后清空数据，让时间自动重置为最新
             document.getElementById('amt-input').value = '';
             document.getElementById('note-input').value = '';
             document.getElementById('datetime-input').value = ''; 
@@ -401,8 +399,27 @@
             }
         }
 
+        // 🌟 新增：一键清账的核心功能
+        function settleDebt(payer, receiver, amount) {
+            if(!confirm(`确定已结清？将记录: ${payer} 转账给 ${receiver} ${amount} JPY`)) return;
+            
+            const now = new Date();
+            const newEx = {
+                id: Date.now(),
+                amount: amount,
+                note: `${payer} ➔ ${receiver}`, // 记录谁转给谁
+                cat: 'Settlement',             // 专属分类：结账
+                payer: payer,
+                icon: 'fa-exchange-alt',       // 结账专属图标
+                timestamp: now.getTime()
+            };
+            
+            expenses.push(newEx);
+            localStorage.setItem('my_trip_expenses', JSON.stringify(expenses));
+            renderExpenses();
+        }
+
         function renderExpenses() {
-            // 🌟 每次打开页面，自动把时间输入框设定为“现在的精确时间”
             const dtInput = document.getElementById('datetime-input');
             if (dtInput && !dtInput.value) {
                 const now = new Date();
@@ -416,7 +433,6 @@
             let totalHome = 0; let totalForeign = 0; 
             let totalXKYM = 0; let totalCLAL = 0;
 
-            // 🌟 1. 顺着时间重新排序（最新的排在最上面）
             expenses.sort((a, b) => {
                 const timeA = a.timestamp || a.id; 
                 const timeB = b.timestamp || b.id;
@@ -428,19 +444,31 @@
             expenses.forEach(e => {
                 const amt = parseFloat(e.amount);
                 const homeVal = amt * config.rate;
-                totalHome += homeVal;
-                totalForeign += amt; 
-                
-                // 计算谁付的钱
                 const currentPayer = e.payer || 'XK YM';
-                if(currentPayer === 'XK YM') { totalXKYM += amt; } else { totalCLAL += amt; }
+                
+                // 🌟 判断是不是结账记录
+                const isSettlement = (e.cat === 'Settlement');
 
-                // 转换时间格式
+                if (isSettlement) {
+                    // 如果是结账，不计入总消费，只平账！
+                    if (currentPayer === 'CL AL') {
+                        totalCLAL += amt; // CL AL 付出了钱
+                        totalXKYM -= amt; // XK YM 收到了钱
+                    } else {
+                        totalXKYM += amt;
+                        totalCLAL -= amt;
+                    }
+                } else {
+                    // 如果是正常消费，计入总消费
+                    totalHome += homeVal;
+                    totalForeign += amt; 
+                    if(currentPayer === 'XK YM') { totalXKYM += amt; } else { totalCLAL += amt; }
+                }
+
                 const dateObj = new Date(e.timestamp || e.id);
                 const dateStr = dateObj.toLocaleDateString(); 
                 const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-                // 🌟 2. 每天结束后画一条线分开
                 if (lastDateStr !== dateStr) {
                     list.innerHTML += `
                         <div style="text-align:center; margin: 25px 0 15px 0; position: relative;">
@@ -453,20 +481,25 @@
                     lastDateStr = dateStr;
                 }
 
+                // 🌟 给结账记录换上专属的绿色高亮外观
+                const iconClass = isSettlement ? 'fa-exchange-alt' : (e.icon || 'fa-receipt');
+                const bgCol = isSettlement ? '#E8F5E9' : '#FFF0F2';
+                const textCol = isSettlement ? '#2E7D32' : '#C41E3A';
+                const titleNote = isSettlement ? '🤝 结账清零' : e.note;
+                const payerNote = isSettlement ? `<strong style="color:${textCol}">${e.note}</strong>` : `🕒 ${timeStr} • <strong style="color:${textCol}">${currentPayer}</strong> 付款`;
+
                 list.innerHTML += `
                     <div class="expense-item">
                         <div style="display:flex; align-items:center; gap:12px;">
-                            <div style="width:40px;height:40px;background:#FFF0F2;color:#C41E3A;border-radius:10px;display:flex;align-items:center;justify-content:center"><i class="fas ${e.icon}"></i></div>
+                            <div style="width:40px;height:40px;background:${bgCol};color:${textCol};border-radius:10px;display:flex;align-items:center;justify-content:center"><i class="fas ${iconClass}"></i></div>
                             <div>
-                                <div style="font-weight:700;color:#333">${e.note}</div>
-                                <div style="font-size:0.75rem;color:#999;margin-top:2px">
-                                    🕒 ${timeStr} • <strong style="color:#C41E3A">${currentPayer}</strong> 付款
-                                </div>
+                                <div style="font-weight:700;color:#333">${titleNote}</div>
+                                <div style="font-size:0.75rem;color:#999;margin-top:2px">${payerNote}</div>
                             </div>
                         </div>
                         <div style="text-align:right">
-                            <div style="font-weight:800;font-size:1.1rem;color:#C41E3A">${amt.toLocaleString()} ${config.foreign}</div>
-                            <div style="font-size:0.75rem;color:#bbb">≈ ${homeVal.toFixed(2)} ${config.home}</div>
+                            <div style="font-weight:800;font-size:1.1rem;color:${textCol}">${amt.toLocaleString()} ${config.foreign}</div>
+                            ${isSettlement ? '' : `<div style="font-size:0.75rem;color:#bbb">≈ ${homeVal.toFixed(2)} ${config.home}</div>`}
                             <button class="btn-del" onclick="deleteEx(${e.id})">×</button>
                         </div>
                     </div>`;
@@ -475,17 +508,35 @@
             document.getElementById('display-total').innerText = `${totalForeign.toLocaleString()} ${config.foreign}`;
             document.getElementById('rate-display').innerHTML = `≈ ${totalHome.toFixed(2)} ${config.home} &nbsp;|&nbsp; 汇率 1 ${config.foreign} = ${config.rate} ${config.home}`;
 
-            // 🌟 3. 核心结账算法 (自动 Offset 并除以 2)
+            // 🌟 自动算账 & 渲染“一键清账”按钮
             const diff = totalXKYM - totalCLAL;
-            const oweAmount = Math.abs(diff / 2).toLocaleString(); 
+            const oweAmountNum = Math.round(Math.abs(diff / 2)); // 算出整数
+            const oweAmountStr = oweAmountNum.toLocaleString(); 
             let settleHtml = "";
             
             if (diff > 0) {
-                settleHtml = `CL & AL 需转账给 XK & YM<br><span style="font-size: 1.35rem; font-weight: 900; color: #FFF; display:inline-block; margin-top:4px;">${oweAmount} ${config.foreign}</span>`;
+                // CL AL 欠钱，生成结账按钮
+                settleHtml = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; text-align:left;">
+                        <div>
+                            CL & AL 需转账给 XK & YM<br>
+                            <span style="font-size: 1.35rem; font-weight: 900; color: #FFF; display:inline-block; margin-top:4px;">${oweAmountStr} ${config.foreign}</span>
+                        </div>
+                        <button onclick="settleDebt('CL AL', 'XK YM', ${oweAmountNum})" style="background:#FFD700; color:#000; border:none; padding:8px 15px; border-radius:20px; font-weight:800; font-size:0.85rem; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.2);">✅ Settled</button>
+                    </div>`;
             } else if (diff < 0) {
-                settleHtml = `XK & YM 需转账给 CL & AL<br><span style="font-size: 1.35rem; font-weight: 900; color: #FFF; display:inline-block; margin-top:4px;">${oweAmount} ${config.foreign}</span>`;
+                // XK YM 欠钱，生成结账按钮
+                settleHtml = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; text-align:left;">
+                        <div>
+                            XK & YM 需转账给 CL & AL<br>
+                            <span style="font-size: 1.35rem; font-weight: 900; color: #FFF; display:inline-block; margin-top:4px;">${oweAmountStr} ${config.foreign}</span>
+                        </div>
+                        <button onclick="settleDebt('XK YM', 'CL AL', ${oweAmountNum})" style="background:#FFD700; color:#000; border:none; padding:8px 15px; border-radius:20px; font-weight:800; font-size:0.85rem; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.2);">✅ Settled</button>
+                    </div>`;
             } else {
-                settleHtml = `目前账目已平，互不相欠 😎`;
+                // 互不相欠，居中显示，隐藏按钮
+                settleHtml = `<div style="text-align:center;">目前账目已平，互不相欠 😎</div>`;
             }
             document.getElementById('settle-text').innerHTML = settleHtml;
         }
@@ -497,8 +548,7 @@
             report += `------------------------\n`;
             report += `💰 总支出: ${document.getElementById('display-total').innerText}\n`;
             report += `------------------------\n`;
-            // 🌟 复制报告的时候，把结账结果也一并复制进去
-            report += `⚖️ 【结账结果】\n${document.getElementById('settle-text').innerText}\n`;
+            report += `⚖️ 【结账结果】\n${document.getElementById('settle-text').innerText.replace('✅ Settled', '')}\n`;
             report += `------------------------\n\n`;
             
             expenses.forEach(e => {
@@ -508,7 +558,11 @@
                 const dateObj = new Date(e.timestamp || e.id);
                 const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
-                report += `▪️ [${dateObj.toLocaleDateString()} ${timeStr}] ${e.note}\n   ${amt} ${config.foreign} (≈ ${homeVal} ${config.home}) | ${payer} 付款\n\n`;
+                if (e.cat === 'Settlement') {
+                    report += `▪️ [${dateObj.toLocaleDateString()} ${timeStr}] 🤝 结账清零\n   ${e.note} ${amt} ${config.foreign}\n\n`;
+                } else {
+                    report += `▪️ [${dateObj.toLocaleDateString()} ${timeStr}] ${e.note}\n   ${amt} ${config.foreign} (≈ ${homeVal} ${config.home}) | ${payer} 付款\n\n`;
+                }
             });
             
             report += `Generated by XK Travel App`;
