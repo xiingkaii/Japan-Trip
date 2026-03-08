@@ -143,6 +143,24 @@
         .tab-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 400px; background: white; border-radius: 50px; display: flex; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; }
         .tab-item { flex: 1; text-align: center; color: #aaa; padding: 8px 0; border-radius: 30px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .tab-item.active { background: #FEE8EC; color: var(--primary); }
+
+        /* === 备注/其他页面样式 === */
+        .note-card { margin: 0 15px 12px 15px; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .note-header { padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
+        .note-green { background-color: #E8F5E9; }
+        .note-yellow { background-color: #FFFDE7; }
+        .note-arrow { color: #888; transition: transform 0.3s; }
+        .note-card.open .note-arrow { transform: rotate(180deg); color: #C41E3A; }
+        .note-body { display: none; padding: 15px; border-top: 1px solid #f0f0f0; }
+        .note-card.open .note-body { display: block; animation: fadeIn 0.3s; }
+        .note-item-header { display: flex; font-size: 0.75rem; color: #888; margin-bottom: 8px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .note-item-header div:nth-child(1) { flex: 1.2; } .note-item-header div:nth-child(2) { flex: 2; } .note-item-header div:nth-child(3) { width: 50px; text-align: right; }
+        .note-item-row { display: flex; align-items: center; font-size: 0.85rem; padding: 10px 0; border-bottom: 1px dashed #f0f0f0; }
+        .note-item-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .note-loc { flex: 1.2; color: #2E7D32; font-weight: 700; }
+        .note-shop { flex: 2; color: #555; white-space: pre-line; line-height: 1.4; }
+        .note-nav { width: 50px; text-align: right; }
+        .note-go-btn { background: white; color: #C41E3A; border: 1px solid #C41E3A; padding: 4px 10px; border-radius: 15px; text-decoration: none; font-weight: 800; font-size: 0.75rem; display: inline-block; box-shadow: 0 2px 4px rgba(196, 30, 58, 0.1); }
     </style>
 </head>
 <body>
@@ -158,6 +176,7 @@
     <div id="tab-itinerary" class="tab-content active"><div id="itinerary-container"></div></div>
 
     <div id="tab-hotel" class="tab-content"><div id="hotel-container"></div></div>
+    <div id="tab-other" class="tab-content"><div id="other-container" style="padding-top: 15px;"></div></div>
 
 
     <div id="tab-expense" class="tab-content">
@@ -218,7 +237,7 @@
         <div class="tab-item active" onclick="switchTab('itinerary', this)"><span>📅</span>行程</div>
         <div class="tab-item" onclick="switchTab('hotel', this)"><span>🏨</span>酒店</div>
         <div class="tab-item" onclick="switchTab('expense', this)"><span>💰</span>记账</div>
-        <div class="tab-item" onclick="switchTab('hotel', this)"><span>🗂️</span>其他</div>
+        <div class="tab-item" onclick="switchTab('other', this)"><span>🗂️</span>其他</div>
     </nav>
 
     <script>
@@ -251,6 +270,7 @@
             itinerary: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=0&single=true&output=csv',
             hotel: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=1936513680&single=true&output=csv',
             settings: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=1983181291&single=true&output=csv'
+            other: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=1982496973&single=true&output=csv'
         };
 
         let config = { home: 'MYR', foreign: 'JPY', rate: 0.026 }; 
@@ -258,10 +278,11 @@
         let expenses = JSON.parse(localStorage.getItem('my_trip_expenses')) || [];
 
         window.onload = function() {
-            generateMobileAppIcon(); // 进网页瞬间先画手机图标
+            generateMobileAppIcon();
             loadSettings();
             loadItinerary();
             loadHotels();
+            loadOthers();
             renderExpenses();
         };
 
@@ -316,6 +337,66 @@
             }});
         }
 
+
+        // === 4. 其他/备注逻辑 ===
+        function loadOthers() {
+            if(!urls.other) return;
+            Papa.parse(urls.other, { download: true, complete: res => {
+                const data = res.data;
+                if(!data || data.length < 2) return;
+                
+                let notesMap = new Map();
+                data.slice(1).forEach(r => {
+                    if(!r[0]) return; // 如果A列（分类）是空的就跳过
+                    const cat = r[0];
+                    const color = r[1] || 'Green';
+                    if(!notesMap.has(cat)) { notesMap.set(cat, { cat: cat, color: color, items: [] }); }
+                    if(r[2] || r[3]) {
+                        notesMap.get(cat).items.push({ loc: r[2], shop: r[3], map: r[4] });
+                    }
+                });
+
+                const cont = document.getElementById('other-container');
+                cont.innerHTML = "";
+                notesMap.forEach(n => {
+                    const bgClass = n.color.toLowerCase() === 'yellow' ? 'note-yellow' : 'note-green';
+                    
+                    let itemsHtml = n.items.map(i => `
+                        <div class="note-item-row">
+                            <div class="note-loc">${i.loc || ''}</div>
+                            <div class="note-shop">${i.shop || ''}</div>
+                            <div class="note-nav">
+                                ${i.map && i.map.startsWith('http') ? `<a href="${i.map}" target="_blank" class="note-go-btn">📍 GO</a>` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    if (n.items.length > 0) {
+                         itemsHtml = `
+                            <div class="note-item-header">
+                                <div>地点</div><div>推荐店铺</div><div>导航</div>
+                            </div>
+                         ` + itemsHtml;
+                    } else {
+                         itemsHtml = `<div style="text-align:center; color:#999; font-size:0.8rem;">暂无详细内容</div>`;
+                    }
+
+                    cont.innerHTML += `
+                        <div class="note-card">
+                            <div class="note-header ${bgClass}" onclick="this.parentElement.classList.toggle('open')">
+                                <div style="font-weight: 800; color: #333; font-size: 0.95rem;">${n.cat}</div>
+                                <i class="fas fa-caret-down note-arrow"></i>
+                            </div>
+                            <div class="note-body">
+                                ${itemsHtml}
+                            </div>
+                        </div>
+                    `;
+                });
+            }});
+        }
+        
+        
         // === 2. 酒店逻辑 ===
         function loadHotels() {
             Papa.parse(urls.hotel, { download: true, complete: res => {
