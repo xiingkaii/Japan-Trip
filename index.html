@@ -446,20 +446,17 @@
                 const homeVal = amt * config.rate;
                 const currentPayer = e.payer || 'XK YM';
                 
-                // 🌟 判断是不是结账记录
                 const isSettlement = (e.cat === 'Settlement');
 
                 if (isSettlement) {
-                    // 如果是结账，不计入总消费，只平账！
                     if (currentPayer === 'CL AL') {
-                        totalCLAL += amt; // CL AL 付出了钱
-                        totalXKYM -= amt; // XK YM 收到了钱
+                        totalCLAL += amt; 
+                        totalXKYM -= amt; 
                     } else {
                         totalXKYM += amt;
                         totalCLAL -= amt;
                     }
                 } else {
-                    // 如果是正常消费，计入总消费
                     totalHome += homeVal;
                     totalForeign += amt; 
                     if(currentPayer === 'XK YM') { totalXKYM += amt; } else { totalCLAL += amt; }
@@ -481,12 +478,13 @@
                     lastDateStr = dateStr;
                 }
 
-                // 🌟 给结账记录换上专属的绿色高亮外观
                 const iconClass = isSettlement ? 'fa-exchange-alt' : (e.icon || 'fa-receipt');
                 const bgCol = isSettlement ? '#E8F5E9' : '#FFF0F2';
                 const textCol = isSettlement ? '#2E7D32' : '#C41E3A';
                 const titleNote = isSettlement ? '🤝 结账清零' : e.note;
-                const payerNote = isSettlement ? `<strong style="color:${textCol}">${e.note}</strong>` : `🕒 ${timeStr} • <strong style="color:${textCol}">${currentPayer}</strong> 付款`;
+                
+                // 🌟 修复的地方在这里：让结账记录也显示 🕒 时间
+                const payerNote = isSettlement ? `🕒 ${timeStr} • <strong style="color:${textCol}">${e.note}</strong>` : `🕒 ${timeStr} • <strong style="color:${textCol}">${currentPayer}</strong> 付款`;
 
                 list.innerHTML += `
                     <div class="expense-item">
@@ -508,14 +506,12 @@
             document.getElementById('display-total').innerText = `${totalForeign.toLocaleString()} ${config.foreign}`;
             document.getElementById('rate-display').innerHTML = `≈ ${totalHome.toFixed(2)} ${config.home} &nbsp;|&nbsp; 汇率 1 ${config.foreign} = ${config.rate} ${config.home}`;
 
-            // 🌟 自动算账 & 渲染“一键清账”按钮
             const diff = totalXKYM - totalCLAL;
-            const oweAmountNum = Math.round(Math.abs(diff / 2)); // 算出整数
+            const oweAmountNum = Math.round(Math.abs(diff / 2)); 
             const oweAmountStr = oweAmountNum.toLocaleString(); 
             let settleHtml = "";
             
             if (diff > 0) {
-                // CL AL 欠钱，生成结账按钮
                 settleHtml = `
                     <div style="display:flex; justify-content:space-between; align-items:center; text-align:left;">
                         <div>
@@ -525,7 +521,6 @@
                         <button onclick="settleDebt('CL AL', 'XK YM', ${oweAmountNum})" style="background:#FFD700; color:#000; border:none; padding:8px 15px; border-radius:20px; font-weight:800; font-size:0.85rem; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.2);">✅ Settled</button>
                     </div>`;
             } else if (diff < 0) {
-                // XK YM 欠钱，生成结账按钮
                 settleHtml = `
                     <div style="display:flex; justify-content:space-between; align-items:center; text-align:left;">
                         <div>
@@ -535,7 +530,6 @@
                         <button onclick="settleDebt('XK YM', 'CL AL', ${oweAmountNum})" style="background:#FFD700; color:#000; border:none; padding:8px 15px; border-radius:20px; font-weight:800; font-size:0.85rem; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.2);">✅ Settled</button>
                     </div>`;
             } else {
-                // 互不相欠，居中显示，隐藏按钮
                 settleHtml = `<div style="text-align:center;">目前账目已平，互不相欠 😎</div>`;
             }
             document.getElementById('settle-text').innerHTML = settleHtml;
