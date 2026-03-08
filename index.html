@@ -347,7 +347,10 @@
             Papa.parse(urls.hotel + '&_=' + new Date().getTime(), { download: true, complete: res => {
                 const cont = document.getElementById('hotel-container');
                 cont.innerHTML = "";
-                if(!res.data || res.data.length < 2) return;
+                
+                // 🌟 修复：放宽判断，只要有数据（哪怕只有1行）就继续执行
+                if(!res.data || res.data.length < 1) return; 
+
                 res.data.slice(1).forEach((h, i) => {
                     if(!h[2]) return; 
                     const tag = h[4] || '住宿';
@@ -366,6 +369,7 @@
                 });
             }});
         }
+
         function copyAddress(text) {
             if(!text) return;
             const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
