@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <meta name="theme-color" content="#C41E3A">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -21,76 +19,32 @@
     <style>
         :root { --primary: #C41E3A; --dark-red: #8E0E25; --bg: #F5F7FA; }
         * { box-sizing: border-box; }
-        
         html { background-color: var(--primary); }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg); 
-            margin: 0; 
-            padding-bottom: 120px; 
-            color: #333; 
-            -webkit-tap-highlight-color: transparent; 
-            min-height: 100vh; 
-        }
-        
-        header { 
-            background: rgba(255, 255, 255, 0.98); 
-            backdrop-filter: blur(10px); 
-            padding: 15px 25px; 
-            border-top: 15px solid var(--primary); 
-            position: sticky; 
-            top: 0; 
-            z-index: 100; 
-            box-shadow: 0 4px 20px rgba(196, 30, 58, 0.08); 
-            transition: all 0.3s ease; 
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: #333; -webkit-tap-highlight-color: transparent; min-height: 100vh; }
+        header { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); padding: 15px 25px; border-top: 15px solid var(--primary); position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(196, 30, 58, 0.08); transition: all 0.3s ease; }
         h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
         p { margin: 0; color: #888; font-size: 0.9rem; font-weight: 500; }
         .credit-tag { font-size: 0.65rem; color: #ddd !important; font-style: italic; }
-
         .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
-        .expense-header { 
-            background: linear-gradient(135deg, #C41E3A, #A01830); 
-            color: white; 
-            padding: 25px 20px; 
-            text-align: center; 
-            margin: 15px; 
-            border-radius: 16px; 
-            box-shadow: 0 10px 20px rgba(196, 30, 58, 0.2); 
-            position: relative; 
-        }
+        /* Expense Styles */
+        .expense-header { background: linear-gradient(135deg, #C41E3A, #A01830); color: white; padding: 25px 20px; text-align: center; margin: 15px; border-radius: 16px; box-shadow: 0 10px 20px rgba(196, 30, 58, 0.2); position: relative; }
         .total-num { font-size: 2.5rem; font-weight: 800; margin: 5px 0; }
         .rate-info { font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 4px 12px; border-radius: 20px; display: inline-block; color: rgba(255,255,255,0.9); }
-        
-        .btn-copy-report {
-            background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4);
-            color: white; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px;
-            margin-top: 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: background 0.2s;
-        }
+        .btn-copy-report { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; margin-top: 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: background 0.2s; }
         .btn-copy-report:active { background: rgba(255,255,255,0.4); }
-
         .input-card { background: white; margin: 0 15px 20px; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        
         .input-group { display: flex; gap: 10px; margin-bottom: 12px; }
-        .form-input { 
-            flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 8px; 
-            font-size: 1rem; outline: none; background: #fff; min-width: 0; box-sizing: border-box;
-        }
-        .cat-select {
-            flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 8px;
-            background: white; font-size: 0.9rem; font-weight: 600; color: #333;
-            outline: none; min-width: 0; box-sizing: border-box;
-        }
-
+        .form-input { flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 8px; font-size: 1rem; outline: none; background: #fff; min-width: 0; box-sizing: border-box; }
+        .cat-select { flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 8px; background: white; font-size: 0.9rem; font-weight: 600; color: #333; outline: none; min-width: 0; box-sizing: border-box; }
         .btn-submit { width: 100%; background: #1a1a1a; color: white; padding: 14px; border-radius: 10px; font-weight: 700; border: none; font-size: 1rem; cursor: pointer; }
-        
         .expense-list { padding: 0 15px; }
         .expense-item { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border: 1px solid #f9f9f9; }
         .btn-del { border: none; background: none; color: #ddd; margin-left: 10px; padding: 5px; }
 
+        /* Itinerary Styles */
         .card { background: white; border-radius: 12px; margin: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: none; }
         .card-header { display: flex; height: 80px; cursor: pointer; transition: background 0.2s; }
         .header-left { background: #BC002D; color: white; width: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
@@ -110,6 +64,7 @@
         .event-remark { background: #FFF0F5; border-left: 4px solid #BC002D; padding: 10px 12px; border-radius: 4px; font-size: 0.9rem; color: #555; line-height: 1.5; margin-bottom: 10px; white-space: pre-line; }
         a.nav-btn { display: inline-flex; align-items: center; gap: 6px; background: #BC002D; color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; font-weight: 600; margin-top: 5px; box-shadow: 0 2px 5px rgba(188, 0, 45, 0.2); }
         
+        /* Hotel Styles */
         .hotel-card { background: white; border-radius: 12px; margin: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.03); }
         .hotel-tag { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; margin-bottom: 10px; }
         .tag-airbnb { background: #E8F5E9; color: #2E7D32; }
@@ -124,11 +79,7 @@
         .btn-nav { flex: 2; background: #BC002D; color: white; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.9rem; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 10px rgba(188, 0, 45, 0.2); }
         .btn-copy { flex: 1; background: #F0F0F0; color: #333; text-align: center; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         
-        .tab-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 400px; background: white; border-radius: 50px; display: flex; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; }
-        .tab-item { flex: 1; text-align: center; color: #aaa; padding: 8px 0; border-radius: 30px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .tab-item.active { background: #FEE8EC; color: var(--primary); }
-
-        /* === 备注/其他页面样式 === */
+        /* Others/Notes Styles */
         .note-card { margin: 0 15px 12px 15px; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
         .note-header { padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
         .note-green { background-color: #E8F5E9; }
@@ -145,6 +96,11 @@
         .note-shop { flex: 2; color: #555; white-space: pre-line; line-height: 1.4; }
         .note-nav { width: 50px; text-align: right; }
         .note-go-btn { background: white; color: #C41E3A; border: 1px solid #C41E3A; padding: 4px 10px; border-radius: 15px; text-decoration: none; font-weight: 800; font-size: 0.75rem; display: inline-block; box-shadow: 0 2px 4px rgba(196, 30, 58, 0.1); }
+
+        /* Nav Bar */
+        .tab-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 400px; background: white; border-radius: 50px; display: flex; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; }
+        .tab-item { flex: 1; text-align: center; color: #aaa; padding: 8px 0; border-radius: 30px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .tab-item.active { background: #FEE8EC; color: var(--primary); }
     </style>
 </head>
 <body>
@@ -159,6 +115,8 @@
 
     <div id="tab-itinerary" class="tab-content active"><div id="itinerary-container"></div></div>
     <div id="tab-hotel" class="tab-content"><div id="hotel-container"></div></div>
+    <div id="tab-other" class="tab-content"><div id="other-container" style="padding-top: 15px;"></div></div>
+
     <div id="tab-expense" class="tab-content">
         <div class="expense-header">
             <div style="font-size:0.9rem; opacity:0.9; margin-bottom:5px;">总支出 (Total Spent)</div>
@@ -208,7 +166,6 @@
         </div>
         <div id="expense-list" style="padding:0 15px;"></div>
     </div>
-    <div id="tab-other" class="tab-content"><div id="other-container" style="padding-top: 15px;"></div></div>
 
     <nav class="tab-bar">
         <div class="tab-item active" onclick="switchTab('itinerary', this)"><span>📅</span>行程</div>
@@ -227,10 +184,9 @@
                 const planePath = new Path2D('M448 336v-40L288 192V79.2c0-17.7-14.8-31.2-32-31.2s-32 13.5-32 31.2V192L64 296v40l160-48v113.6l-48 31.8v33.6l80-25.6 80 25.6v-33.6l-48-31.8V288l160 48z');
                 ctx.fill(planePath);
                 document.getElementById('apple-icon').href = canvas.toDataURL('image/png');
-            } catch (e) { console.log("Icon generation skipped."); }
+            } catch (e) { console.log("Icon skipped."); }
         }
 
-        // 🌟 这里已经为你填入了刚刚提供的4个正确链接！
         const urls = {
             itinerary: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=0&single=true&output=csv',
             hotel: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=1936513680&single=true&output=csv',
@@ -242,14 +198,19 @@
         const icons = { 'Food': 'fa-hamburger', 'Transport': 'fa-train', 'Grocery': 'fa-shopping-cart', '药妆店': 'fa-medkit', 'Entertainment': 'fa-gamepad', 'Ticket': 'fa-ticket-alt', 'Souvenir': 'fa-gift', 'Shopping': 'fa-shopping-bag', 'Accommodation': 'fa-bed', 'Others': 'fa-receipt' };
         let expenses = JSON.parse(localStorage.getItem('my_trip_expenses')) || [];
 
+        // 🌟 核心防拦截引擎：采用 Callback 链式调用，绝对不并发！
         window.onload = function() {
             generateMobileAppIcon();
-            // 🌟 错开请求时间，防止 Google 阻挡
-            setTimeout(loadSettings, 0);
-            setTimeout(loadItinerary, 300);
-            setTimeout(loadHotels, 600);
-            setTimeout(loadOthers, 900);
-            renderExpenses();
+            loadSettings(function() {
+                loadItinerary(function() {
+                    loadHotels(function() {
+                        loadOthers(function() {
+                            renderExpenses();
+                            console.log("All sheets loaded completely!");
+                        });
+                    });
+                });
+            });
         };
 
         function switchTab(id, el) {
@@ -259,81 +220,80 @@
             el.classList.add('active');
         }
 
-        // === 1. 行程逻辑 (取消限制，全盘接收) ===
-        function loadItinerary() {
-            Papa.parse(urls.itinerary + '&_=' + new Date().getTime(), { download: true, complete: res => {
-                const data = res.data;
-                if(!data || data.length === 0) {
-                    document.getElementById('itinerary-container').innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>行程数据加载失败，请检查表格是否为空。</p>";
-                    return;
-                }
-                
-                if(data[0] && data[0][1]) document.getElementById('app-title').innerText = data[0][1];
-                if(data[1] && data[1][1]) document.getElementById('app-subtitle').innerText = data[1][1];
-                
-                let daysMap = new Map();
-                data.forEach(r => {
-                    const colA = (r[0] || '').toString().trim();
-                    // 只要A列不是这些特定表头字眼，就当作真实数据抓取
-                    if(colA && colA.toLowerCase() !== 'app title' && colA.toLowerCase() !== 'title:' && colA.toLowerCase() !== 'subtitle:' && colA.toLowerCase() !== 'day' && colA !== '天数 (Day)') {
-                        if(!daysMap.has(colA)) { daysMap.set(colA, { n: colA, d: r[1] || '', l: r[3] || '行程', e: [] }); }
-                        if(r[3] || r[4]) { 
-                            daysMap.get(colA).e.push({ time: r[2], act: r[4] || r[3], rem: r[5], map: r[6], ref: r[7] }); 
-                        }
-                    }
-                });
+        function loadItinerary(callback) {
+            Papa.parse(urls.itinerary + '&_=' + new Date().getTime(), { 
+                download: true, 
+                complete: res => {
+                    const data = res.data;
+                    if(data && data.length >= 5) {
+                        if(data[0] && data[0][1]) document.getElementById('app-title').innerText = data[0][1];
+                        if(data[1] && data[1][1]) document.getElementById('app-subtitle').innerText = data[1][1];
+                        
+                        let daysMap = new Map();
+                        data.slice(4).forEach(r => {
+                            if(!r[0] || r[0] === 'Day' || r[0] === '天数 (Day)') return;
+                            if(!daysMap.has(r[0])) { daysMap.set(r[0], { n: r[0], d: r[1], l: r[3], e: [] }); }
+                            if(r[4] || r[3]) { daysMap.get(r[0]).e.push({ time: r[2], act: r[4] || r[3], rem: r[5], map: r[6], ref: r[7] }); }
+                        });
 
-                const cont = document.getElementById('itinerary-container');
-                cont.innerHTML = "";
-                daysMap.forEach(d => {
-                    let evs = d.e.map(e => `
-                        <div class="timeline-item">
-                            <div class="timeline-dot"></div>
-                            <span class="event-time">${e.time || ''}</span>
-                            <div class="event-act">${e.act || ''}</div>
-                            ${e.rem ? `<div class="event-remark">${e.rem}</div>` : ''}
-                            
-                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                ${e.map && e.map.startsWith('http') ? `<a href="${e.map}" target="_blank" class="nav-btn">📍 路线 (Route)</a>` : ''}
-                                ${e.ref && e.ref.startsWith('http') ? `<a href="${e.ref}" target="_blank" class="nav-btn" style="background: #444; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🔗 参考 Link</a>` : ''}
-                            </div>
-                        </div>`).join('');
-                    cont.innerHTML += `
-                        <div class="card">
-                            <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
-                                <div class="header-left"><div class="day-num">${d.n}</div><div class="day-date">${d.d}</div></div>
-                                <div class="header-right"><div class="day-title">${d.l}</div><i class="fas fa-chevron-down toggle-icon"></i></div>
-                            </div>
-                            <div class="card-body">${evs}</div>
-                        </div>`;
-                });
-            }});
+                        const cont = document.getElementById('itinerary-container');
+                        cont.innerHTML = "";
+                        daysMap.forEach(d => {
+                            let evs = d.e.map(e => `
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <span class="event-time">${e.time || ''}</span>
+                                    <div class="event-act">${e.act || ''}</div>
+                                    ${e.rem ? `<div class="event-remark">${e.rem}</div>` : ''}
+                                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                        ${e.map && e.map.startsWith('http') ? `<a href="${e.map}" target="_blank" class="nav-btn">📍 路线 (Route)</a>` : ''}
+                                        ${e.ref && e.ref.startsWith('http') ? `<a href="${e.ref}" target="_blank" class="nav-btn" style="background: #444; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🔗 参考 Link</a>` : ''}
+                                    </div>
+                                </div>`).join('');
+                            cont.innerHTML += `
+                                <div class="card">
+                                    <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+                                        <div class="header-left"><div class="day-num">${d.n}</div><div class="day-date">${d.d}</div></div>
+                                        <div class="header-right"><div class="day-title">${d.l || '行程'}</div><i class="fas fa-chevron-down toggle-icon"></i></div>
+                                    </div>
+                                    <div class="card-body">${evs}</div>
+                                </div>`;
+                        });
+                    }
+                    if(callback) callback();
+                },
+                error: () => { if(callback) callback(); }
+            });
         }
 
-        // === 2. 酒店逻辑 (取消行数限制) ===
-        function loadHotels() {
-            Papa.parse(urls.hotel + '&_=' + new Date().getTime(), { download: true, complete: res => {
-                const cont = document.getElementById('hotel-container');
-                cont.innerHTML = "";
-                if(!res.data || res.data.length === 0) return;
-                
-                res.data.slice(1).forEach((h, i) => {
-                    if(!h[2] || h[2].trim() === '') return; 
-                    const tag = h[4] || '住宿';
-                    const tagClass = tag.toLowerCase().includes('airbnb') ? 'tag-airbnb' : 'tag-hotel';
-                    cont.innerHTML += `
-                        <div class="hotel-card">
-                            <span class="hotel-tag ${tagClass}">${tag}</span>
-                            <div class="hotel-header-row"><i class="fas fa-map-marker-alt hotel-icon-pin"></i><div class="hotel-title">${i + 1}. ${h[1] || ''}: ${h[2]}</div></div>
-                            <div class="hotel-date">${h[0] || ''}</div>
-                            <div class="hotel-address-box"><div>${h[3] || '暂无地址'}</div>${h[5] ? `<span class="hotel-remark">${h[5]}</span>` : ''}</div>
-                            <div class="hotel-btns">
-                                ${h[6] && h[6].startsWith('http') ? `<a href="${h[6]}" target="_blank" class="btn-nav"><i class="fas fa-location-arrow"></i> 导航前往</a>` : `<button class="btn-nav" disabled style="opacity:0.5;">暂无导航</button>`}
-                                <button class="btn-copy" onclick="copyAddress('${(h[3] || '').replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制地址</button>
-                            </div>
-                        </div>`;
-                });
-            }});
+        function loadHotels(callback) {
+            Papa.parse(urls.hotel + '&_=' + new Date().getTime(), { 
+                download: true, 
+                complete: res => {
+                    const cont = document.getElementById('hotel-container');
+                    cont.innerHTML = "";
+                    if(res.data && res.data.length >= 2) {
+                        res.data.slice(1).forEach((h, i) => {
+                            if(!h[2] || h[2].trim() === '') return; 
+                            const tag = h[4] || '住宿';
+                            const tagClass = tag.toLowerCase().includes('airbnb') ? 'tag-airbnb' : 'tag-hotel';
+                            cont.innerHTML += `
+                                <div class="hotel-card">
+                                    <span class="hotel-tag ${tagClass}">${tag}</span>
+                                    <div class="hotel-header-row"><i class="fas fa-map-marker-alt hotel-icon-pin"></i><div class="hotel-title">${i + 1}. ${h[1] || ''}: ${h[2]}</div></div>
+                                    <div class="hotel-date">${h[0] || ''}</div>
+                                    <div class="hotel-address-box"><div>${h[3] || '暂无地址'}</div>${h[5] ? `<span class="hotel-remark">${h[5]}</span>` : ''}</div>
+                                    <div class="hotel-btns">
+                                        ${h[6] && h[6].startsWith('http') ? `<a href="${h[6]}" target="_blank" class="btn-nav"><i class="fas fa-location-arrow"></i> 导航前往</a>` : `<button class="btn-nav" disabled style="opacity:0.5;">暂无导航</button>`}
+                                        <button class="btn-copy" onclick="copyAddress('${(h[3] || '').replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制地址</button>
+                                    </div>
+                                </div>`;
+                        });
+                    }
+                    if(callback) callback();
+                },
+                error: () => { if(callback) callback(); }
+            });
         }
 
         function copyAddress(text) {
@@ -342,78 +302,71 @@
             alert("✅ 地址已复制");
         }
 
-        // === 3. 其他/备注逻辑 ===
-        function loadOthers() {
-            if(!urls.other) return;
-            Papa.parse(urls.other + '&_=' + new Date().getTime(), { download: true, complete: res => {
-                const data = res.data;
-                if(!data || data.length === 0) return;
-                
-                let notesMap = new Map();
-                data.slice(1).forEach(r => {
-                    if(!r[0] || r[0].trim() === '') return; 
-                    const cat = r[0];
-                    const color = r[1] || 'Green';
-                    if(!notesMap.has(cat)) { notesMap.set(cat, { cat: cat, color: color, items: [] }); }
-                    if(r[2] || r[3]) {
-                        notesMap.get(cat).items.push({ loc: r[2], shop: r[3], map: r[4] });
-                    }
-                });
+        function loadOthers(callback) {
+            Papa.parse(urls.other + '&_=' + new Date().getTime(), { 
+                download: true, 
+                complete: res => {
+                    const data = res.data;
+                    if(data && data.length >= 2) {
+                        let notesMap = new Map();
+                        data.slice(1).forEach(r => {
+                            if(!r[0] || r[0].trim() === '') return; 
+                            const cat = r[0];
+                            const color = r[1] || 'Green';
+                            if(!notesMap.has(cat)) { notesMap.set(cat, { cat: cat, color: color, items: [] }); }
+                            if(r[2] || r[3]) { notesMap.get(cat).items.push({ loc: r[2], shop: r[3], map: r[4] }); }
+                        });
 
-                const cont = document.getElementById('other-container');
-                cont.innerHTML = "";
-                notesMap.forEach(n => {
-                    const bgClass = n.color.toLowerCase() === 'yellow' ? 'note-yellow' : 'note-green';
-                    
-                    let itemsHtml = n.items.map(i => `
-                        <div class="note-item-row">
-                            <div class="note-loc">${i.loc || ''}</div>
-                            <div class="note-shop">${i.shop || ''}</div>
-                            <div class="note-nav">
-                                ${i.map && i.map.startsWith('http') ? `<a href="${i.map}" target="_blank" class="note-go-btn">📍 GO</a>` : ''}
-                            </div>
-                        </div>
-                    `).join('');
-                    
-                    if (n.items.length > 0) {
-                         itemsHtml = `
-                            <div class="note-item-header">
-                                <div>地点</div><div>推荐店铺</div><div>导航</div>
-                            </div>
-                         ` + itemsHtml;
-                    } else {
-                         itemsHtml = `<div style="text-align:center; color:#999; font-size:0.8rem;">暂无详细内容</div>`;
+                        const cont = document.getElementById('other-container');
+                        cont.innerHTML = "";
+                        notesMap.forEach(n => {
+                            const bgClass = n.color.toLowerCase() === 'yellow' ? 'note-yellow' : 'note-green';
+                            let itemsHtml = n.items.map(i => `
+                                <div class="note-item-row">
+                                    <div class="note-loc">${i.loc || ''}</div>
+                                    <div class="note-shop">${i.shop || ''}</div>
+                                    <div class="note-nav">
+                                        ${i.map && i.map.startsWith('http') ? `<a href="${i.map}" target="_blank" class="note-go-btn">📍 GO</a>` : ''}
+                                    </div>
+                                </div>`).join('');
+                            
+                            if (n.items.length > 0) {
+                                 itemsHtml = `<div class="note-item-header"><div>地点</div><div>推荐店铺</div><div>导航</div></div>` + itemsHtml;
+                            } else {
+                                 itemsHtml = `<div style="text-align:center; color:#999; font-size:0.8rem;">暂无详细内容</div>`;
+                            }
+                            cont.innerHTML += `
+                                <div class="note-card">
+                                    <div class="note-header ${bgClass}" onclick="this.parentElement.classList.toggle('open')">
+                                        <div style="font-weight: 800; color: #333; font-size: 0.95rem;">${n.cat}</div>
+                                        <i class="fas fa-caret-down note-arrow"></i>
+                                    </div>
+                                    <div class="note-body">${itemsHtml}</div>
+                                </div>`;
+                        });
                     }
-
-                    cont.innerHTML += `
-                        <div class="note-card">
-                            <div class="note-header ${bgClass}" onclick="this.parentElement.classList.toggle('open')">
-                                <div style="font-weight: 800; color: #333; font-size: 0.95rem;">${n.cat}</div>
-                                <i class="fas fa-caret-down note-arrow"></i>
-                            </div>
-                            <div class="note-body">
-                                ${itemsHtml}
-                            </div>
-                        </div>
-                    `;
-                });
-            }});
+                    if(callback) callback();
+                },
+                error: () => { if(callback) callback(); }
+            });
         }
 
-        // === 4. 记账与结账逻辑 ===
-        function loadSettings() {
-            Papa.parse(urls.settings + '&_=' + new Date().getTime(), { download: true, complete: res => {
-                const s = res.data;
-                if(s && s.length > 2) {
-                    config.home = s[1][1] || 'MYR'; 
-                    config.foreign = s[2][1] || 'USD';
-                    config.rate = parseFloat(s[1][2]) || 1; 
-                    
-                    document.getElementById('rate-display').innerText = `汇率参考: 1 ${config.foreign} = ${config.rate} ${config.home}`;
-                    document.getElementById('amt-input').placeholder = `金额 (${config.foreign})`;
-                    renderExpenses();
-                }
-            }});
+        function loadSettings(callback) {
+            Papa.parse(urls.settings + '&_=' + new Date().getTime(), { 
+                download: true, 
+                complete: res => {
+                    const s = res.data;
+                    if(s && s.length > 2) {
+                        config.home = s[1][1] || 'MYR'; 
+                        config.foreign = s[2][1] || 'USD';
+                        config.rate = parseFloat(s[1][2]) || 1; 
+                        document.getElementById('rate-display').innerText = `汇率参考: 1 ${config.foreign} = ${config.rate} ${config.home}`;
+                        document.getElementById('amt-input').placeholder = `金额 (${config.foreign})`;
+                    }
+                    if(callback) callback();
+                },
+                error: () => { if(callback) callback(); }
+            });
         }
 
         function addExpense() {
@@ -422,131 +375,65 @@
             const cat = document.getElementById('cat-input').value;
             const payer = document.getElementById('payer-input').value;
             const datetimeVal = document.getElementById('datetime-input').value;
-            
             if (!amt) return alert("请输入金额");
-
             const finalDate = datetimeVal ? new Date(datetimeVal) : new Date();
-
-            const newEx = {
-                id: Date.now(),
-                amount: amt,
-                note: note || cat,
-                cat: cat,
-                payer: payer,
-                icon: icons[cat] || 'fa-receipt',
-                timestamp: finalDate.getTime() 
-            };
-            
+            const newEx = { id: Date.now(), amount: amt, note: note || cat, cat: cat, payer: payer, icon: icons[cat] || 'fa-receipt', timestamp: finalDate.getTime() };
             expenses.push(newEx);
             localStorage.setItem('my_trip_expenses', JSON.stringify(expenses));
-            
-            document.getElementById('amt-input').value = '';
-            document.getElementById('note-input').value = '';
-            document.getElementById('datetime-input').value = ''; 
+            document.getElementById('amt-input').value = ''; document.getElementById('note-input').value = ''; document.getElementById('datetime-input').value = ''; 
             renderExpenses();
         }
 
         function deleteEx(id) {
-            if(confirm("删除此记录?")) {
-                expenses = expenses.filter(e => e.id !== id);
-                localStorage.setItem('my_trip_expenses', JSON.stringify(expenses));
-                renderExpenses();
-            }
+            if(confirm("删除此记录?")) { expenses = expenses.filter(e => e.id !== id); localStorage.setItem('my_trip_expenses', JSON.stringify(expenses)); renderExpenses(); }
         }
 
         function settleDebt(payer, receiver, amount) {
             if(!confirm(`确定已结清？将记录: ${payer} 转账给 ${receiver} ${amount} JPY`)) return;
-            
-            const now = new Date();
-            const newEx = {
-                id: Date.now(),
-                amount: amount,
-                note: `${payer} ➔ ${receiver}`, 
-                cat: 'Settlement',             
-                payer: payer,
-                icon: 'fa-exchange-alt',       
-                timestamp: now.getTime()
-            };
-            
-            expenses.push(newEx);
-            localStorage.setItem('my_trip_expenses', JSON.stringify(expenses));
-            renderExpenses();
+            const newEx = { id: Date.now(), amount: amount, note: `${payer} ➔ ${receiver}`, cat: 'Settlement', payer: payer, icon: 'fa-exchange-alt', timestamp: new Date().getTime() };
+            expenses.push(newEx); localStorage.setItem('my_trip_expenses', JSON.stringify(expenses)); renderExpenses();
         }
 
         function renderExpenses() {
             const dtInput = document.getElementById('datetime-input');
             if (dtInput && !dtInput.value) {
-                const now = new Date();
-                const tzOffset = now.getTimezoneOffset() * 60000;
+                const now = new Date(); const tzOffset = now.getTimezoneOffset() * 60000;
                 dtInput.value = (new Date(now - tzOffset)).toISOString().slice(0, 16);
             }
 
-            const list = document.getElementById('expense-list');
-            list.innerHTML = '';
-            
-            let totalHome = 0; let totalForeign = 0; 
-            let totalXKYM = 0; let totalCLAL = 0;
-
-            expenses.sort((a, b) => {
-                const timeA = a.timestamp || a.id; 
-                const timeB = b.timestamp || b.id;
-                return timeB - timeA;
-            });
+            const list = document.getElementById('expense-list'); list.innerHTML = '';
+            let totalHome = 0; let totalForeign = 0; let totalXKYM = 0; let totalCLAL = 0;
+            expenses.sort((a, b) => (b.timestamp || b.id) - (a.timestamp || a.id));
 
             let lastDateStr = null;
-
             expenses.forEach(e => {
-                const amt = parseFloat(e.amount);
-                const homeVal = amt * config.rate;
-                const currentPayer = e.payer || 'XK YM';
-                
+                const amt = parseFloat(e.amount); const homeVal = amt * config.rate; const currentPayer = e.payer || 'XK YM';
                 const isSettlement = (e.cat === 'Settlement');
 
                 if (isSettlement) {
-                    if (currentPayer === 'CL AL') {
-                        totalCLAL += amt; 
-                        totalXKYM -= amt; 
-                    } else {
-                        totalXKYM += amt;
-                        totalCLAL -= amt;
-                    }
+                    if (currentPayer === 'CL AL') { totalCLAL += amt; totalXKYM -= amt; } else { totalXKYM += amt; totalCLAL -= amt; }
                 } else {
-                    totalHome += homeVal;
-                    totalForeign += amt; 
+                    totalHome += homeVal; totalForeign += amt; 
                     if(currentPayer === 'XK YM') { totalXKYM += amt; } else { totalCLAL += amt; }
                 }
 
-                const dateObj = new Date(e.timestamp || e.id);
-                const dateStr = dateObj.toLocaleDateString(); 
-                const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const dateObj = new Date(e.timestamp || e.id); const dateStr = dateObj.toLocaleDateString(); const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
                 if (lastDateStr !== dateStr) {
-                    list.innerHTML += `
-                        <div style="text-align:center; margin: 25px 0 15px 0; position: relative;">
-                            <div style="position: absolute; top: 50%; left: 0; right: 0; border-top: 1px dashed #ccc; z-index: 1;"></div>
-                            <span style="position: relative; background: var(--bg); padding: 0 15px; color: #888; font-size: 0.8rem; font-weight: bold; z-index: 2; border-radius: 10px;">
-                                📅 ${dateStr}
-                            </span>
-                        </div>
-                    `;
+                    list.innerHTML += `<div style="text-align:center; margin: 25px 0 15px 0; position: relative;"><div style="position: absolute; top: 50%; left: 0; right: 0; border-top: 1px dashed #ccc; z-index: 1;"></div><span style="position: relative; background: var(--bg); padding: 0 15px; color: #888; font-size: 0.8rem; font-weight: bold; z-index: 2; border-radius: 10px;">📅 ${dateStr}</span></div>`;
                     lastDateStr = dateStr;
                 }
 
                 const iconClass = isSettlement ? 'fa-exchange-alt' : (e.icon || 'fa-receipt');
-                const bgCol = isSettlement ? '#E8F5E9' : '#FFF0F2';
-                const textCol = isSettlement ? '#2E7D32' : '#C41E3A';
+                const bgCol = isSettlement ? '#E8F5E9' : '#FFF0F2'; const textCol = isSettlement ? '#2E7D32' : '#C41E3A';
                 const titleNote = isSettlement ? '🤝 结账清零' : e.note;
-                
                 const payerNote = isSettlement ? `🕒 ${timeStr} • <strong style="color:${textCol}">${e.note}</strong>` : `🕒 ${timeStr} • <strong style="color:${textCol}">${currentPayer}</strong> 付款`;
 
                 list.innerHTML += `
                     <div class="expense-item">
                         <div style="display:flex; align-items:center; gap:12px;">
                             <div style="width:40px;height:40px;background:${bgCol};color:${textCol};border-radius:10px;display:flex;align-items:center;justify-content:center"><i class="fas ${iconClass}"></i></div>
-                            <div>
-                                <div style="font-weight:700;color:#333">${titleNote}</div>
-                                <div style="font-size:0.75rem;color:#999;margin-top:2px">${payerNote}</div>
-                            </div>
+                            <div><div style="font-weight:700;color:#333">${titleNote}</div><div style="font-size:0.75rem;color:#999;margin-top:2px">${payerNote}</div></div>
                         </div>
                         <div style="text-align:right">
                             <div style="font-weight:800;font-size:1.1rem;color:${textCol}">${amt.toLocaleString()} ${config.foreign}</div>
@@ -559,29 +446,12 @@
             document.getElementById('display-total').innerText = `${totalForeign.toLocaleString()} ${config.foreign}`;
             document.getElementById('rate-display').innerHTML = `≈ ${totalHome.toFixed(2)} ${config.home} &nbsp;|&nbsp; 汇率 1 ${config.foreign} = ${config.rate} ${config.home}`;
 
-            const diff = totalXKYM - totalCLAL;
-            const oweAmountNum = Math.round(Math.abs(diff / 2)); 
-            const oweAmountStr = oweAmountNum.toLocaleString(); 
+            const diff = totalXKYM - totalCLAL; const oweAmountNum = Math.round(Math.abs(diff / 2)); const oweAmountStr = oweAmountNum.toLocaleString(); 
             let settleHtml = "";
-            
             if (diff > 0) {
-                settleHtml = `
-                    <div style="display:flex; justify-content:space-between; align-items:center; text-align:left;">
-                        <div>
-                            CL & AL 需转账给 XK & YM<br>
-                            <span style="font-size: 1.35rem; font-weight: 900; color: #FFF; display:inline-block; margin-top:4px;">${oweAmountStr} ${config.foreign}</span>
-                        </div>
-                        <button onclick="settleDebt('CL AL', 'XK YM', ${oweAmountNum})" style="background:#FFD700; color:#000; border:none; padding:8px 15px; border-radius:20px; font-weight:800; font-size:0.85rem; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.2);">✅ Settled</button>
-                    </div>`;
+                settleHtml = `<div style="display:flex; justify-content:space-between; align-items:center; text-align:left;"><div>CL & AL 需转账给 XK & YM<br><span style="font-size: 1.35rem; font-weight: 900; color: #FFF; display:inline-block; margin-top:4px;">${oweAmountStr} ${config.foreign}</span></div><button onclick="settleDebt('CL AL', 'XK YM', ${oweAmountNum})" style="background:#FFD700; color:#000; border:none; padding:8px 15px; border-radius:20px; font-weight:800; font-size:0.85rem; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.2);">✅ Settled</button></div>`;
             } else if (diff < 0) {
-                settleHtml = `
-                    <div style="display:flex; justify-content:space-between; align-items:center; text-align:left;">
-                        <div>
-                            XK & YM 需转账给 CL & AL<br>
-                            <span style="font-size: 1.35rem; font-weight: 900; color: #FFF; display:inline-block; margin-top:4px;">${oweAmountStr} ${config.foreign}</span>
-                        </div>
-                        <button onclick="settleDebt('XK YM', 'CL AL', ${oweAmountNum})" style="background:#FFD700; color:#000; border:none; padding:8px 15px; border-radius:20px; font-weight:800; font-size:0.85rem; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.2);">✅ Settled</button>
-                    </div>`;
+                settleHtml = `<div style="display:flex; justify-content:space-between; align-items:center; text-align:left;"><div>XK & YM 需转账给 CL & AL<br><span style="font-size: 1.35rem; font-weight: 900; color: #FFF; display:inline-block; margin-top:4px;">${oweAmountStr} ${config.foreign}</span></div><button onclick="settleDebt('XK YM', 'CL AL', ${oweAmountNum})" style="background:#FFD700; color:#000; border:none; padding:8px 15px; border-radius:20px; font-weight:800; font-size:0.85rem; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.2);">✅ Settled</button></div>`;
             } else {
                 settleHtml = `<div style="text-align:center;">目前账目已平，互不相欠 😎</div>`;
             }
@@ -590,36 +460,15 @@
 
         function copyReport() {
             if (expenses.length === 0) return alert("还没有记账记录哦！");
-            
-            let report = `🧾 旅游消费账单 (${new Date().toLocaleDateString()})\n`;
-            report += `------------------------\n`;
-            report += `💰 总支出: ${document.getElementById('display-total').innerText}\n`;
-            report += `------------------------\n`;
-            report += `⚖️ 【结账结果】\n${document.getElementById('settle-text').innerText.replace('✅ Settled', '')}\n`;
-            report += `------------------------\n\n`;
-            
+            let report = `🧾 旅游消费账单 (${new Date().toLocaleDateString()})\n------------------------\n💰 总支出: ${document.getElementById('display-total').innerText}\n------------------------\n⚖️ 【结账结果】\n${document.getElementById('settle-text').innerText.replace('✅ Settled', '')}\n------------------------\n\n`;
             expenses.forEach(e => {
-                const amt = parseFloat(e.amount);
-                const homeVal = (amt * config.rate).toFixed(2);
-                const payer = e.payer || 'XK YM';
-                const dateObj = new Date(e.timestamp || e.id);
-                const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                
-                if (e.cat === 'Settlement') {
-                    report += `▪️ [${dateObj.toLocaleDateString()} ${timeStr}] 🤝 结账清零\n   ${e.note} ${amt} ${config.foreign}\n\n`;
-                } else {
-                    report += `▪️ [${dateObj.toLocaleDateString()} ${timeStr}] ${e.note}\n   ${amt} ${config.foreign} (≈ ${homeVal} ${config.home}) | ${payer} 付款\n\n`;
-                }
+                const amt = parseFloat(e.amount); const homeVal = (amt * config.rate).toFixed(2); const payer = e.payer || 'XK YM';
+                const dateObj = new Date(e.timestamp || e.id); const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                if (e.cat === 'Settlement') { report += `▪️ [${dateObj.toLocaleDateString()} ${timeStr}] 🤝 结账清零\n   ${e.note} ${amt} ${config.foreign}\n\n`; } 
+                else { report += `▪️ [${dateObj.toLocaleDateString()} ${timeStr}] ${e.note}\n   ${amt} ${config.foreign} (≈ ${homeVal} ${config.home}) | ${payer} 付款\n\n`; }
             });
-            
             report += `Generated by XK Travel App`;
-
-            const el = document.createElement('textarea');
-            el.value = report;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
+            const el = document.createElement('textarea'); el.value = report; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
             alert("✅ 账单已复制！快去发给群组结账吧。");
         }
     </script>
