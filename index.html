@@ -249,16 +249,13 @@
                 canvas.height = 512;
                 const ctx = canvas.getContext('2d');
                 
-                // 1. 画纯正红底 (苹果系统会自动给它切圆角，所以正方形最好)
                 ctx.fillStyle = '#C41E3A';
                 ctx.fillRect(0, 0, 512, 512);
                 
-                // 2. 画出跟电脑端一模一样的白色飞机
                 ctx.fillStyle = '#FFFFFF';
                 const planePath = new Path2D('M448 336v-40L288 192V79.2c0-17.7-14.8-31.2-32-31.2s-32 13.5-32 31.2V192L64 296v40l160-48v113.6l-48 31.8v33.6l80-25.6 80 25.6v-33.6l-48-31.8V288l160 48z');
                 ctx.fill(planePath);
                 
-                // 3. 把画好的图转换成 PNG，塞进手机识别的标签里
                 document.getElementById('apple-icon').href = canvas.toDataURL('image/png');
             } catch (e) {
                 console.log("Icon generation skipped.");
@@ -274,7 +271,6 @@
 
         let config = { home: 'MYR', foreign: 'JPY', rate: 0.026 }; 
         
-        // 🌟 优化：帮你把所有的记账类别都匹配上了精美的专属图标！
         const icons = { 'Food': 'fa-hamburger', 'Transport': 'fa-train', 'Grocery': 'fa-shopping-cart', '药妆店': 'fa-medkit', 'Entertainment': 'fa-gamepad', 'Ticket': 'fa-ticket-alt', 'Souvenir': 'fa-gift', 'Shopping': 'fa-shopping-bag', 'Accommodation': 'fa-bed', 'Others': 'fa-receipt' };
         
         let expenses = JSON.parse(localStorage.getItem('my_trip_expenses')) || [];
@@ -282,7 +278,7 @@
         window.onload = function() {
             generateMobileAppIcon();
             
-            // 🌟 核心修复 1：【排队请求】让四个请求错开 0.3 秒执行，绝对不触发 Google 防火墙拦截！
+            // 使用排队请求防止被 Google 拦截
             setTimeout(loadSettings, 0);
             setTimeout(loadItinerary, 300);
             setTimeout(loadHotels, 600);
@@ -300,19 +296,31 @@
 
         // === 1. 行程逻辑 ===
         function loadItinerary() {
-            // 🌟 核心修复 2：【&_=时间戳】强制打破浏览器缓存，每次都抓取最新数据！
             Papa.parse(urls.itinerary + '&_=' + new Date().getTime(), { download: true, complete: res => {
                 const data = res.data;
-                if(!data || data.length < 5) return;
+                // 🚨 修复 1：大大放宽限制，只要有数据就往下走
+                if(!data || data.length === 0) return;
                 
-                if(data[0] && data[0][1]) document.getElementById('app-title').innerText = data[0][1];
-                if(data[1] && data[1][1]) document.getElementById('app-subtitle').innerText = data[1][1];
+                // 为了防止第一二行没写字导致报错，加了 ?. 的安全判断
+                if(data[0] && data[0][1]) { document.getElementById('app-title').innerText = data[0][1]; }
+                if(data[1] && data[1][1]) { document.getElementById('app-subtitle').innerText = data[1][1]; }
                 
                 let daysMap = new Map();
-                data.slice(4).forEach(r => {
-                    if(!r[0] || r[0] === 'Day') return;
-                    if(!daysMap.has(r[0])) { daysMap.set(r[0], { n: r[0], d: r[1], l: r[3], e: [] }); }
-                    if(r[4]) { daysMap.get(r[0]).e.push({ time: r[2], act: r[4], rem: r[5], map: r[6], ref: r[7] }); }
+                
+                // 🚨 修复 2：有些人的表格前几行不是固定的，这里改成智能扫描：只要A列有文字，且不是"APP TITLE/SUBTITLE/Day"这类表头，就当做行程数据。
+                data.forEach(r => {
+                    const colA = (r[0] || '').toString().trim();
+                    // 只要A列不是空，不是大标题，不是表头，就当做真实数据来读取
+                    if(colA && colA.toLowerCase() !== 'app title' && colA.toLowerCase() !== 'subtitle' && colA.toLowerCase() !== 'day') {
+                        if(!daysMap.has(colA)) { 
+                            // 注意：根据你的截图，B列是Date，C列是Time，D列是Location (对应这里的大标题 d.l)
+                            daysMap.set(colA, { n: colA, d: r[1], l: r[3] || '行程', e: [] }); 
+                        }
+                        // 即使没有填 Activity (r[4])，只要有地点也算一条记录
+                        if(r[3] || r[4]) { 
+                            daysMap.get(colA).e.push({ time: r[2], act: r[4] || r[3], rem: r[5], map: r[6], ref: r[7] }); 
+                        }
+                    }
                 });
 
                 const cont = document.getElementById('itinerary-container');
@@ -322,7 +330,7 @@
                         <div class="timeline-item">
                             <div class="timeline-dot"></div>
                             <span class="event-time">${e.time || ''}</span>
-                            <div class="event-act">${e.act}</div>
+                            <div class="event-act">${e.act || ''}</div>
                             ${e.rem ? `<div class="event-remark">${e.rem}</div>` : ''}
                             
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -347,22 +355,24 @@
             Papa.parse(urls.hotel + '&_=' + new Date().getTime(), { download: true, complete: res => {
                 const cont = document.getElementById('hotel-container');
                 cont.innerHTML = "";
-                
-                // 🌟 修复：放宽判断，只要有数据（哪怕只有1行）就继续执行
-                if(!res.data || res.data.length < 1) return; 
+                // 🚨 修复 3：完全取消行数限制！哪怕你的酒店表里只有一行标题，它也不会报错。
+                if(!res.data || res.data.length === 0) return; 
 
+                // 强制跳过第1行表头，不管后面剩几行都尝试渲染
                 res.data.slice(1).forEach((h, i) => {
-                    if(!h[2]) return; 
+                    // 如果C列(酒店名, h[2])是空的，就跳过这一行
+                    if(!h[2] || h[2].trim() === '') return; 
+                    
                     const tag = h[4] || '住宿';
                     const tagClass = tag.toLowerCase().includes('airbnb') ? 'tag-airbnb' : 'tag-hotel';
                     cont.innerHTML += `
                         <div class="hotel-card">
                             <span class="hotel-tag ${tagClass}">${tag}</span>
-                            <div class="hotel-header-row"><i class="fas fa-map-marker-alt hotel-icon-pin"></i><div class="hotel-title">${i + 1}. ${h[1]}: ${h[2]}</div></div>
+                            <div class="hotel-header-row"><i class="fas fa-map-marker-alt hotel-icon-pin"></i><div class="hotel-title">${i + 1}. ${h[1] || ''}: ${h[2]}</div></div>
                             <div class="hotel-date">${h[0] || ''}</div>
                             <div class="hotel-address-box"><div>${h[3] || '暂无地址'}</div>${h[5] ? `<span class="hotel-remark">${h[5]}</span>` : ''}</div>
                             <div class="hotel-btns">
-                                ${h[6] ? `<a href="${h[6]}" target="_blank" class="btn-nav"><i class="fas fa-location-arrow"></i> 导航前往</a>` : `<button class="btn-nav" disabled style="opacity:0.5;">暂无导航</button>`}
+                                ${h[6] && h[6].startsWith('http') ? `<a href="${h[6]}" target="_blank" class="btn-nav"><i class="fas fa-location-arrow"></i> 导航前往</a>` : `<button class="btn-nav" disabled style="opacity:0.5;">暂无导航</button>`}
                                 <button class="btn-copy" onclick="copyAddress('${(h[3] || '').replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制地址</button>
                             </div>
                         </div>`;
@@ -381,11 +391,12 @@
             if(!urls.other) return;
             Papa.parse(urls.other + '&_=' + new Date().getTime(), { download: true, complete: res => {
                 const data = res.data;
-                if(!data || data.length < 2) return;
+                // 🚨 修复 4：同样取消对 Other 数据的严苛行数判断
+                if(!data || data.length === 0) return;
                 
                 let notesMap = new Map();
                 data.slice(1).forEach(r => {
-                    if(!r[0]) return; // 如果A列（分类）是空的就跳过
+                    if(!r[0] || r[0].trim() === '') return; 
                     const cat = r[0];
                     const color = r[1] || 'Green';
                     if(!notesMap.has(cat)) { notesMap.set(cat, { cat: cat, color: color, items: [] }); }
