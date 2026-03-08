@@ -22,9 +22,7 @@
         :root { --primary: #C41E3A; --dark-red: #8E0E25; --bg: #F5F7FA; }
         * { box-sizing: border-box; }
         
-        html { 
-            background-color: var(--primary); 
-        }
+        html { background-color: var(--primary); }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: var(--bg); 
@@ -44,7 +42,7 @@
             top: 0; 
             z-index: 100; 
             box-shadow: 0 4px 20px rgba(196, 30, 58, 0.08); 
-            transition: all 0.3s ease;
+            transition: all 0.3s ease; 
         }
         h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
         p { margin: 0; color: #888; font-size: 0.9rem; font-weight: 500; }
@@ -68,18 +66,9 @@
         .rate-info { font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 4px 12px; border-radius: 20px; display: inline-block; color: rgba(255,255,255,0.9); }
         
         .btn-copy-report {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: white;
-            font-size: 0.8rem;
-            padding: 6px 12px;
-            border-radius: 20px;
-            margin-top: 15px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: background 0.2s;
+            background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px;
+            margin-top: 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: background 0.2s;
         }
         .btn-copy-report:active { background: rgba(255,255,255,0.4); }
 
@@ -87,20 +76,13 @@
         
         .input-group { display: flex; gap: 10px; margin-bottom: 12px; }
         .form-input { 
-            flex: 1; padding: 12px; 
-            border: 1px solid #eee; border-radius: 8px; 
-            font-size: 1rem; outline: none; background: #fff;
-            min-width: 0; 
-            box-sizing: border-box;
+            flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 8px; 
+            font-size: 1rem; outline: none; background: #fff; min-width: 0; box-sizing: border-box;
         }
         .cat-select {
-            flex: 1; 
-            padding: 12px;
-            border: 1px solid #eee; border-radius: 8px;
+            flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 8px;
             background: white; font-size: 0.9rem; font-weight: 600; color: #333;
-            outline: none;
-            min-width: 0; 
-            box-sizing: border-box;
+            outline: none; min-width: 0; box-sizing: border-box;
         }
 
         .btn-submit { width: 100%; background: #1a1a1a; color: white; padding: 14px; border-radius: 10px; font-weight: 700; border: none; font-size: 1rem; cursor: pointer; }
@@ -127,6 +109,7 @@
         .event-act { font-weight: 800; font-size: 1.05rem; color: #222; margin-bottom: 8px; }
         .event-remark { background: #FFF0F5; border-left: 4px solid #BC002D; padding: 10px 12px; border-radius: 4px; font-size: 0.9rem; color: #555; line-height: 1.5; margin-bottom: 10px; white-space: pre-line; }
         a.nav-btn { display: inline-flex; align-items: center; gap: 6px; background: #BC002D; color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; font-weight: 600; margin-top: 5px; box-shadow: 0 2px 5px rgba(188, 0, 45, 0.2); }
+        
         .hotel-card { background: white; border-radius: 12px; margin: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.03); }
         .hotel-tag { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; margin-bottom: 10px; }
         .tag-airbnb { background: #E8F5E9; color: #2E7D32; }
@@ -140,6 +123,7 @@
         .hotel-btns { display: flex; gap: 10px; }
         .btn-nav { flex: 2; background: #BC002D; color: white; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.9rem; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 10px rgba(188, 0, 45, 0.2); }
         .btn-copy { flex: 1; background: #F0F0F0; color: #333; text-align: center; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        
         .tab-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 400px; background: white; border-radius: 50px; display: flex; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; }
         .tab-item { flex: 1; text-align: center; color: #aaa; padding: 8px 0; border-radius: 30px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .tab-item.active { background: #FEE8EC; color: var(--primary); }
@@ -174,11 +158,7 @@
     </header>
 
     <div id="tab-itinerary" class="tab-content active"><div id="itinerary-container"></div></div>
-
     <div id="tab-hotel" class="tab-content"><div id="hotel-container"></div></div>
-    <div id="tab-other" class="tab-content"><div id="other-container" style="padding-top: 15px;"></div></div>
-
-
     <div id="tab-expense" class="tab-content">
         <div class="expense-header">
             <div style="font-size:0.9rem; opacity:0.9; margin-bottom:5px;">总支出 (Total Spent)</div>
@@ -191,9 +171,7 @@
             </div>
             
             <div>
-                <button class="btn-copy-report" onclick="copyReport()">
-                    <i class="fas fa-clipboard-list"></i> 复制账单给家人
-                </button>
+                <button class="btn-copy-report" onclick="copyReport()"><i class="fas fa-clipboard-list"></i> 复制账单给家人</button>
             </div>
         </div>
 
@@ -228,10 +206,9 @@
             </div>
             <button class="btn-submit" onclick="addExpense()">+ 记一笔</button>
         </div>
-
         <div id="expense-list" style="padding:0 15px;"></div>
     </div>
-
+    <div id="tab-other" class="tab-content"><div id="other-container" style="padding-top: 15px;"></div></div>
 
     <nav class="tab-bar">
         <div class="tab-item active" onclick="switchTab('itinerary', this)"><span>📅</span>行程</div>
@@ -241,27 +218,19 @@
     </nav>
 
     <script>
-        // === 新增：黑科技！在手机端瞬间画一个高清 PNG 图标，解决 iOS 拒绝 SVG 的 Bug ===
         function generateMobileAppIcon() {
             try {
-                const canvas = document.createElement('canvas');
-                canvas.width = 512;
-                canvas.height = 512;
+                const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512;
                 const ctx = canvas.getContext('2d');
-                
-                ctx.fillStyle = '#C41E3A';
-                ctx.fillRect(0, 0, 512, 512);
-                
+                ctx.fillStyle = '#C41E3A'; ctx.fillRect(0, 0, 512, 512);
                 ctx.fillStyle = '#FFFFFF';
                 const planePath = new Path2D('M448 336v-40L288 192V79.2c0-17.7-14.8-31.2-32-31.2s-32 13.5-32 31.2V192L64 296v40l160-48v113.6l-48 31.8v33.6l80-25.6 80 25.6v-33.6l-48-31.8V288l160 48z');
                 ctx.fill(planePath);
-                
                 document.getElementById('apple-icon').href = canvas.toDataURL('image/png');
-            } catch (e) {
-                console.log("Icon generation skipped.");
-            }
+            } catch (e) { console.log("Icon generation skipped."); }
         }
 
+        // 🌟 这里已经为你填入了刚刚提供的4个正确链接！
         const urls = {
             itinerary: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=0&single=true&output=csv',
             hotel: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=1936513680&single=true&output=csv',
@@ -270,20 +239,16 @@
         };
 
         let config = { home: 'MYR', foreign: 'JPY', rate: 0.026 }; 
-        
         const icons = { 'Food': 'fa-hamburger', 'Transport': 'fa-train', 'Grocery': 'fa-shopping-cart', '药妆店': 'fa-medkit', 'Entertainment': 'fa-gamepad', 'Ticket': 'fa-ticket-alt', 'Souvenir': 'fa-gift', 'Shopping': 'fa-shopping-bag', 'Accommodation': 'fa-bed', 'Others': 'fa-receipt' };
-        
         let expenses = JSON.parse(localStorage.getItem('my_trip_expenses')) || [];
 
         window.onload = function() {
             generateMobileAppIcon();
-            
-            // 使用排队请求防止被 Google 拦截
+            // 🌟 错开请求时间，防止 Google 阻挡
             setTimeout(loadSettings, 0);
             setTimeout(loadItinerary, 300);
             setTimeout(loadHotels, 600);
             setTimeout(loadOthers, 900);
-            
             renderExpenses();
         };
 
@@ -294,29 +259,24 @@
             el.classList.add('active');
         }
 
-        // === 1. 行程逻辑 ===
+        // === 1. 行程逻辑 (取消限制，全盘接收) ===
         function loadItinerary() {
             Papa.parse(urls.itinerary + '&_=' + new Date().getTime(), { download: true, complete: res => {
                 const data = res.data;
-                // 🚨 修复 1：大大放宽限制，只要有数据就往下走
-                if(!data || data.length === 0) return;
+                if(!data || data.length === 0) {
+                    document.getElementById('itinerary-container').innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>行程数据加载失败，请检查表格是否为空。</p>";
+                    return;
+                }
                 
-                // 为了防止第一二行没写字导致报错，加了 ?. 的安全判断
-                if(data[0] && data[0][1]) { document.getElementById('app-title').innerText = data[0][1]; }
-                if(data[1] && data[1][1]) { document.getElementById('app-subtitle').innerText = data[1][1]; }
+                if(data[0] && data[0][1]) document.getElementById('app-title').innerText = data[0][1];
+                if(data[1] && data[1][1]) document.getElementById('app-subtitle').innerText = data[1][1];
                 
                 let daysMap = new Map();
-                
-                // 🚨 修复 2：有些人的表格前几行不是固定的，这里改成智能扫描：只要A列有文字，且不是"APP TITLE/SUBTITLE/Day"这类表头，就当做行程数据。
                 data.forEach(r => {
                     const colA = (r[0] || '').toString().trim();
-                    // 只要A列不是空，不是大标题，不是表头，就当做真实数据来读取
-                    if(colA && colA.toLowerCase() !== 'app title' && colA.toLowerCase() !== 'subtitle' && colA.toLowerCase() !== 'day') {
-                        if(!daysMap.has(colA)) { 
-                            // 注意：根据你的截图，B列是Date，C列是Time，D列是Location (对应这里的大标题 d.l)
-                            daysMap.set(colA, { n: colA, d: r[1], l: r[3] || '行程', e: [] }); 
-                        }
-                        // 即使没有填 Activity (r[4])，只要有地点也算一条记录
+                    // 只要A列不是这些特定表头字眼，就当作真实数据抓取
+                    if(colA && colA.toLowerCase() !== 'app title' && colA.toLowerCase() !== 'title:' && colA.toLowerCase() !== 'subtitle:' && colA.toLowerCase() !== 'day' && colA !== '天数 (Day)') {
+                        if(!daysMap.has(colA)) { daysMap.set(colA, { n: colA, d: r[1] || '', l: r[3] || '行程', e: [] }); }
                         if(r[3] || r[4]) { 
                             daysMap.get(colA).e.push({ time: r[2], act: r[4] || r[3], rem: r[5], map: r[6], ref: r[7] }); 
                         }
@@ -350,19 +310,15 @@
             }});
         }
 
-        // === 2. 酒店逻辑 ===
+        // === 2. 酒店逻辑 (取消行数限制) ===
         function loadHotels() {
             Papa.parse(urls.hotel + '&_=' + new Date().getTime(), { download: true, complete: res => {
                 const cont = document.getElementById('hotel-container');
                 cont.innerHTML = "";
-                // 🚨 修复 3：完全取消行数限制！哪怕你的酒店表里只有一行标题，它也不会报错。
-                if(!res.data || res.data.length === 0) return; 
-
-                // 强制跳过第1行表头，不管后面剩几行都尝试渲染
+                if(!res.data || res.data.length === 0) return;
+                
                 res.data.slice(1).forEach((h, i) => {
-                    // 如果C列(酒店名, h[2])是空的，就跳过这一行
                     if(!h[2] || h[2].trim() === '') return; 
-                    
                     const tag = h[4] || '住宿';
                     const tagClass = tag.toLowerCase().includes('airbnb') ? 'tag-airbnb' : 'tag-hotel';
                     cont.innerHTML += `
@@ -391,7 +347,6 @@
             if(!urls.other) return;
             Papa.parse(urls.other + '&_=' + new Date().getTime(), { download: true, complete: res => {
                 const data = res.data;
-                // 🚨 修复 4：同样取消对 Other 数据的严苛行数判断
                 if(!data || data.length === 0) return;
                 
                 let notesMap = new Map();
@@ -445,7 +400,7 @@
             }});
         }
 
-        // === 4. 记账逻辑 + 复制功能 ===
+        // === 4. 记账与结账逻辑 ===
         function loadSettings() {
             Papa.parse(urls.settings + '&_=' + new Date().getTime(), { download: true, complete: res => {
                 const s = res.data;
