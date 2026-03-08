@@ -106,15 +106,16 @@
 <body>
 
     <header>
-        <h1 id="app-title">正在连接表格...</h1>
+        <h1 id="app-title">2026 Japan Trip</h1>
         <div class="subtitle-row" style="display:flex; justify-content:space-between; align-items:center;">
-            <p id="app-subtitle">Connecting to Google Sheets...</p>
+            <p id="app-subtitle">正在获取最新行程...</p>
             <span class="credit-tag">Created by XingKai</span>
         </div>
     </header>
 
-    <div id="tab-itinerary" class="tab-content active"><div id="itinerary-container"></div></div>
-    <div id="tab-hotel" class="tab-content"><div id="hotel-container"></div></div>
+    <div id="tab-itinerary" class="tab-content active"><div id="itinerary-container" style="padding:20px; text-align:center; color:#888;">正在拼命加载行程数据...</div></div>
+    <div id="tab-hotel" class="tab-content"><div id="hotel-container" style="padding:20px; text-align:center; color:#888;">正在拼命加载酒店数据...</div></div>
+    
     <div id="tab-expense" class="tab-content">
         <div class="expense-header">
             <div style="font-size:0.9rem; opacity:0.9; margin-bottom:5px;">总支出 (Total Spent)</div>
@@ -164,7 +165,8 @@
         </div>
         <div id="expense-list" style="padding:0 15px;"></div>
     </div>
-    <div id="tab-other" class="tab-content"><div id="other-container" style="padding-top: 15px;"></div></div>
+    
+    <div id="tab-other" class="tab-content"><div id="other-container" style="padding:20px; text-align:center; color:#888;">正在拼命加载其他数据...</div></div>
 
     <nav class="tab-bar">
         <div class="tab-item active" onclick="switchTab('itinerary', this)"><span>📅</span>行程</div>
@@ -195,6 +197,7 @@
 
         let config = { home: 'MYR', foreign: 'JPY', rate: 0.026 }; 
         const icons = { 'Food': 'fa-hamburger', 'Transport': 'fa-train', 'Grocery': 'fa-shopping-cart', '药妆店': 'fa-medkit', 'Entertainment': 'fa-gamepad', 'Ticket': 'fa-ticket-alt', 'Souvenir': 'fa-gift', 'Shopping': 'fa-shopping-bag', 'Accommodation': 'fa-bed', 'Others': 'fa-receipt' };
+        
         let expenses = [];
         try {
             const saved = localStorage.getItem('my_trip_expenses');
@@ -203,11 +206,13 @@
 
         window.onload = function() {
             generateMobileAppIcon();
-            // 依次加载，绝不冲突
-            loadSettings();
-            setTimeout(loadItinerary, 200);
-            setTimeout(loadHotels, 400);
-            setTimeout(loadOthers, 600);
+            document.getElementById('app-title').innerText = "2026 日本之旅 JAPAN TRIP";
+            
+            // 安全调用，即使一个失败也不会影响另一个
+            setTimeout(loadItinerary, 100);
+            setTimeout(loadHotels, 300);
+            setTimeout(loadOthers, 500);
+            setTimeout(loadSettings, 700);
             renderExpenses();
         };
 
@@ -225,58 +230,49 @@
                 complete: function(res) {
                     try {
                         const data = res.data;
-                        if(!data || data.length < 4) return;
+                        const cont = document.getElementById('itinerary-container');
                         
-                        if(data[0] && data[0][1]) document.getElementById('app-title').innerText = data[0][1];
+                        if(!data || data.length === 0) {
+                            cont.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>获取不到行程数据。</p>";
+                            return;
+                        }
+
+                        // 💡 侦测是否未公开 (返回的是 Google 登录 HTML)
+                        if (String(data[0][0]).toLowerCase().includes('<!doctype html>')) {
+                            cont.innerHTML = "<div style='margin:20px; padding:20px; background:#FFEbee; color:#C41E3A; border-radius:10px; text-align:center; font-weight:bold;'>⚠️ 严重错误：您的行程表【未公开】！<br><br>请在 Google Sheet 点 File ➔ Share ➔ Publish to web ➔ 重新发布！</div>";
+                            return;
+                        }
+                        
                         if(data[1] && data[1][1]) document.getElementById('app-subtitle').innerText = data[1][1];
                         
                         let daysMap = new Map();
                         data.forEach((r, index) => {
-                            if (index < 4 || !r || !r[0]) return;
+                            if (!r || !r[0]) return;
                             const colA = String(r[0]).trim();
-                            if (colA === '' || colA === 'Day' || colA === '天数 (Day)') return;
+                            if (colA === '' || colA.toUpperCase() === 'DAY' || colA.includes('天数') || colA.includes('TITLE')) return;
                             
-                            if (!daysMap.has(colA)) { 
-                                daysMap.set(colA, { n: colA, d: r[1] || '', l: r[3] || '行程', e: [] }); 
-                            }
-                            if (r[3] || r[4]) {
+                            if (!daysMap.has(colA)) { daysMap.set(colA, { n: colA, d: r[1] || '', l: r[3] || '行程', e: [] }); }
+                            if (r[3] || r[4] || r[2]) {
                                 daysMap.get(colA).e.push({
-                                    time: r[2] || '',
-                                    act: r[4] || r[3] || '',
-                                    rem: r[5] || '',
-                                    map: r[6] || '',
-                                    ref: r[7] || ''
+                                    time: r[2] || '', act: r[4] || r[3] || '📍', rem: r[5] || '', map: r[6] || '', ref: r[7] || ''
                                 });
                             }
                         });
 
-                        const cont = document.getElementById('itinerary-container');
                         cont.innerHTML = "";
+                        if(daysMap.size === 0) { cont.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>行程表里好像没写内容。</p>"; return; }
+
                         daysMap.forEach(d => {
                             let evs = d.e.map(e => {
-                                const mapLink = e.map && String(e.map).startsWith('http') ? `<a href="${e.map}" target="_blank" class="nav-btn">📍 路线 (Route)</a>` : '';
-                                const refLink = e.ref && String(e.ref).startsWith('http') ? `<a href="${e.ref}" target="_blank" class="nav-btn" style="background: #444; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🔗 参考 Link</a>` : '';
-                                return `
-                                <div class="timeline-item">
-                                    <div class="timeline-dot"></div>
-                                    <span class="event-time">${e.time}</span>
-                                    <div class="event-act">${e.act}</div>
-                                    ${e.rem ? `<div class="event-remark">${e.rem}</div>` : ''}
-                                    ${mapLink || refLink ? `<div style="display: flex; gap: 8px; flex-wrap: wrap;">${mapLink}${refLink}</div>` : ''}
-                                </div>`;
+                                const mapLink = e.map && String(e.map).startsWith('http') ? `<a href="${e.map}" target="_blank" class="nav-btn">📍 路线</a>` : '';
+                                const refLink = e.ref && String(e.ref).startsWith('http') ? `<a href="${e.ref}" target="_blank" class="nav-btn" style="background: #444; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🔗 参考</a>` : '';
+                                return `<div class="timeline-item"><div class="timeline-dot"></div><span class="event-time">${e.time}</span><div class="event-act">${e.act}</div>${e.rem ? `<div class="event-remark">${e.rem}</div>` : ''}${mapLink || refLink ? `<div style="display: flex; gap: 8px; flex-wrap: wrap;">${mapLink}${refLink}</div>` : ''}</div>`;
                             }).join('');
-                            
-                            cont.innerHTML += `
-                                <div class="card">
-                                    <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
-                                        <div class="header-left"><div class="day-num">${d.n}</div><div class="day-date">${d.d}</div></div>
-                                        <div class="header-right"><div class="day-title">${d.l}</div><i class="fas fa-chevron-down toggle-icon"></i></div>
-                                    </div>
-                                    <div class="card-body">${evs}</div>
-                                </div>`;
+                            cont.innerHTML += `<div class="card"><div class="card-header" onclick="this.parentElement.classList.toggle('open')"><div class="header-left"><div class="day-num">${d.n}</div><div class="day-date">${d.d}</div></div><div class="header-right"><div class="day-title">${d.l}</div><i class="fas fa-chevron-down toggle-icon"></i></div></div><div class="card-body">${evs}</div></div>`;
                         });
-                    } catch (e) { console.error("行程加载错误", e); }
-                }
+                    } catch (e) { document.getElementById('itinerary-container').innerHTML = `<p style="color:red; text-align:center;">行程读取报错: ${e.message}</p>`; }
+                },
+                error: function() { document.getElementById('itinerary-container').innerHTML = "<p style='color:red; text-align:center;'>网络错误，请刷新重试</p>"; }
             });
         }
 
@@ -286,30 +282,27 @@
                 download: true, 
                 complete: function(res) {
                     try {
+                        const data = res.data;
                         const cont = document.getElementById('hotel-container');
-                        cont.innerHTML = "";
-                        if(!res.data) return;
+                        if(!data || data.length === 0) { cont.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>获取不到酒店数据。</p>"; return; }
                         
-                        res.data.slice(1).forEach((h) => {
+                        if (String(data[0][0]).toLowerCase().includes('<!doctype html>')) {
+                            cont.innerHTML = "<div style='margin:20px; padding:20px; background:#FFEbee; color:#C41E3A; border-radius:10px; text-align:center; font-weight:bold;'>⚠️ 严重错误：您的酒店表【未公开】！</div>";
+                            return;
+                        }
+
+                        cont.innerHTML = "";
+                        data.forEach((h, index) => {
+                            if (index === 0) return; // 跳过表头
                             if(!h || !h[2] || String(h[2]).trim() === '') return; 
                             const tag = h[4] || '住宿';
                             const tagClass = String(tag).toLowerCase().includes('airbnb') ? 'tag-airbnb' : 'tag-hotel';
                             const mapBtn = (h[6] && String(h[6]).startsWith('http')) ? `<a href="${h[6]}" target="_blank" class="btn-nav"><i class="fas fa-location-arrow"></i> 导航前往</a>` : `<button class="btn-nav" disabled style="opacity:0.5;">暂无导航</button>`;
                             const addr = h[3] || '暂无地址';
                             
-                            cont.innerHTML += `
-                                <div class="hotel-card">
-                                    <span class="hotel-tag ${tagClass}">${tag}</span>
-                                    <div class="hotel-header-row"><i class="fas fa-map-marker-alt hotel-icon-pin"></i><div class="hotel-title">${h[1] || ''}: ${h[2]}</div></div>
-                                    <div class="hotel-date">${h[0] || ''}</div>
-                                    <div class="hotel-address-box"><div>${addr}</div>${h[5] ? `<span class="hotel-remark">${h[5]}</span>` : ''}</div>
-                                    <div class="hotel-btns">
-                                        ${mapBtn}
-                                        <button class="btn-copy" onclick="copyAddress('${addr.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制地址</button>
-                                    </div>
-                                </div>`;
+                            cont.innerHTML += `<div class="hotel-card"><span class="hotel-tag ${tagClass}">${tag}</span><div class="hotel-header-row"><i class="fas fa-map-marker-alt hotel-icon-pin"></i><div class="hotel-title">${h[1] || ''}: ${h[2]}</div></div><div class="hotel-date">${h[0] || ''}</div><div class="hotel-address-box"><div>${addr}</div>${h[5] ? `<span class="hotel-remark">${h[5]}</span>` : ''}</div><div class="hotel-btns">${mapBtn}<button class="btn-copy" onclick="copyAddress('${addr.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制地址</button></div></div>`;
                         });
-                    } catch (e) { console.error("酒店加载错误", e); }
+                    } catch (e) {}
                 }
             });
         }
@@ -326,11 +319,18 @@
                 download: true, 
                 complete: function(res) {
                     try {
+                        const data = res.data;
                         const cont = document.getElementById('other-container');
-                        if(!res.data) return;
+                        if(!data || data.length === 0) { cont.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>获取不到其他清单数据。</p>"; return; }
+                        
+                        if (String(data[0][0]).toLowerCase().includes('<!doctype html>')) {
+                            cont.innerHTML = "<div style='margin:20px; padding:20px; background:#FFEbee; color:#C41E3A; border-radius:10px; text-align:center; font-weight:bold;'>⚠️ 严重错误：您的其他清单表【未公开】！</div>";
+                            return;
+                        }
                         
                         let notesMap = new Map();
-                        res.data.slice(1).forEach(r => {
+                        data.forEach((r, index) => {
+                            if (index === 0) return; // 跳过表头
                             if(!r || !r[0] || String(r[0]).trim() === '') return; 
                             const cat = String(r[0]).trim();
                             const color = r[1] || 'Green';
@@ -341,30 +341,12 @@
                         cont.innerHTML = "";
                         notesMap.forEach(n => {
                             const bgClass = String(n.color).toLowerCase() === 'yellow' ? 'note-yellow' : 'note-green';
-                            let itemsHtml = n.items.map(i => `
-                                <div class="note-item-row">
-                                    <div class="note-loc">${i.loc}</div>
-                                    <div class="note-shop">${i.shop}</div>
-                                    <div class="note-nav">
-                                        ${i.map && String(i.map).startsWith('http') ? `<a href="${i.map}" target="_blank" class="note-go-btn">📍 GO</a>` : ''}
-                                    </div>
-                                </div>`).join('');
-                            
-                            if (n.items.length > 0) {
-                                 itemsHtml = `<div class="note-item-header"><div>地点</div><div>推荐店铺</div><div>导航</div></div>` + itemsHtml;
-                            } else {
-                                 itemsHtml = `<div style="text-align:center; color:#999; font-size:0.8rem;">暂无详细内容</div>`;
-                            }
-                            cont.innerHTML += `
-                                <div class="note-card">
-                                    <div class="note-header ${bgClass}" onclick="this.parentElement.classList.toggle('open')">
-                                        <div style="font-weight: 800; color: #333; font-size: 0.95rem;">${n.cat}</div>
-                                        <i class="fas fa-caret-down note-arrow"></i>
-                                    </div>
-                                    <div class="note-body">${itemsHtml}</div>
-                                </div>`;
+                            let itemsHtml = n.items.map(i => `<div class="note-item-row"><div class="note-loc">${i.loc}</div><div class="note-shop">${i.shop}</div><div class="note-nav">${i.map && String(i.map).startsWith('http') ? `<a href="${i.map}" target="_blank" class="note-go-btn">📍 GO</a>` : ''}</div></div>`).join('');
+                            if (n.items.length > 0) { itemsHtml = `<div class="note-item-header"><div>地点</div><div>推荐店铺</div><div>导航</div></div>` + itemsHtml; } 
+                            else { itemsHtml = `<div style="text-align:center; color:#999; font-size:0.8rem;">暂无详细内容</div>`; }
+                            cont.innerHTML += `<div class="note-card"><div class="note-header ${bgClass}" onclick="this.parentElement.classList.toggle('open')"><div style="font-weight: 800; color: #333; font-size: 0.95rem;">${n.cat}</div><i class="fas fa-caret-down note-arrow"></i></div><div class="note-body">${itemsHtml}</div></div>`;
                         });
-                    } catch (e) { console.error("其他加载错误", e); }
+                    } catch (e) {}
                 }
             });
         }
@@ -376,7 +358,7 @@
                 complete: function(res) {
                     try {
                         const s = res.data;
-                        if(s && s.length > 2) {
+                        if(s && s.length > 2 && !String(s[0][0]).toLowerCase().includes('<!doctype html>')) {
                             config.home = s[1][1] || 'MYR'; 
                             config.foreign = s[2][1] || 'USD';
                             config.rate = parseFloat(s[1][2]) || 0.026; 
@@ -465,18 +447,7 @@
                 const titleNote = isSettlement ? '🤝 结账清零' : e.note;
                 const payerNote = isSettlement ? `🕒 ${timeStr} • <strong style="color:${textCol}">${e.note}</strong>` : `🕒 ${timeStr} • <strong style="color:${textCol}">${currentPayer}</strong> 付款`;
 
-                list.innerHTML += `
-                    <div class="expense-item">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div style="width:40px;height:40px;background:${bgCol};color:${textCol};border-radius:10px;display:flex;align-items:center;justify-content:center"><i class="fas ${iconClass}"></i></div>
-                            <div><div style="font-weight:700;color:#333">${titleNote}</div><div style="font-size:0.75rem;color:#999;margin-top:2px">${payerNote}</div></div>
-                        </div>
-                        <div style="text-align:right">
-                            <div style="font-weight:800;font-size:1.1rem;color:${textCol}">${amt.toLocaleString()} ${config.foreign}</div>
-                            ${isSettlement ? '' : `<div style="font-size:0.75rem;color:#bbb">≈ ${homeVal.toFixed(2)} ${config.home}</div>`}
-                            <button class="btn-del" onclick="deleteEx(${e.id})">×</button>
-                        </div>
-                    </div>`;
+                list.innerHTML += `<div class="expense-item"><div style="display:flex; align-items:center; gap:12px;"><div style="width:40px;height:40px;background:${bgCol};color:${textCol};border-radius:10px;display:flex;align-items:center;justify-content:center"><i class="fas ${iconClass}"></i></div><div><div style="font-weight:700;color:#333">${titleNote}</div><div style="font-size:0.75rem;color:#999;margin-top:2px">${payerNote}</div></div></div><div style="text-align:right"><div style="font-weight:800;font-size:1.1rem;color:${textCol}">${amt.toLocaleString()} ${config.foreign}</div>${isSettlement ? '' : `<div style="font-size:0.75rem;color:#bbb">≈ ${homeVal.toFixed(2)} ${config.home}</div>`}<button class="btn-del" onclick="deleteEx(${e.id})">×</button></div></div>`;
             });
             
             document.getElementById('display-total').innerText = `${totalForeign.toLocaleString()} ${config.foreign}`;
