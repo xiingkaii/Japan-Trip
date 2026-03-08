@@ -264,7 +264,6 @@
                 console.log("Icon generation skipped.");
             }
         }
-        // =========================================================================
 
         const urls = {
             itinerary: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=0&single=true&output=csv',
@@ -274,15 +273,21 @@
         };
 
         let config = { home: 'MYR', foreign: 'JPY', rate: 0.026 }; 
-        const icons = { '餐饮': 'fa-utensils', '交通': 'fa-train', '购物': 'fa-shopping-bag', '住宿': 'fa-bed', '其他': 'fa-receipt' };
+        
+        // 🌟 优化：帮你把所有的记账类别都匹配上了精美的专属图标！
+        const icons = { 'Food': 'fa-hamburger', 'Transport': 'fa-train', 'Grocery': 'fa-shopping-cart', '药妆店': 'fa-medkit', 'Entertainment': 'fa-gamepad', 'Ticket': 'fa-ticket-alt', 'Souvenir': 'fa-gift', 'Shopping': 'fa-shopping-bag', 'Accommodation': 'fa-bed', 'Others': 'fa-receipt' };
+        
         let expenses = JSON.parse(localStorage.getItem('my_trip_expenses')) || [];
 
         window.onload = function() {
             generateMobileAppIcon();
-            loadSettings();
-            loadItinerary();
-            loadHotels();
-            loadOthers();
+            
+            // 🌟 核心修复 1：【排队请求】让四个请求错开 0.3 秒执行，绝对不触发 Google 防火墙拦截！
+            setTimeout(loadSettings, 0);
+            setTimeout(loadItinerary, 300);
+            setTimeout(loadHotels, 600);
+            setTimeout(loadOthers, 900);
+            
             renderExpenses();
         };
 
@@ -295,7 +300,8 @@
 
         // === 1. 行程逻辑 ===
         function loadItinerary() {
-            Papa.parse(urls.itinerary, { download: true, complete: res => {
+            // 🌟 核心修复 2：【&_=时间戳】强制打破浏览器缓存，每次都抓取最新数据！
+            Papa.parse(urls.itinerary + '&_=' + new Date().getTime(), { download: true, complete: res => {
                 const data = res.data;
                 if(!data || data.length < 5) return;
                 
@@ -306,7 +312,6 @@
                 data.slice(4).forEach(r => {
                     if(!r[0] || r[0] === 'Day') return;
                     if(!daysMap.has(r[0])) { daysMap.set(r[0], { n: r[0], d: r[1], l: r[3], e: [] }); }
-                    // 🌟 重点改动 1：这里增加了 r[7]，用来读取 H 列的 Reference Links
                     if(r[4]) { daysMap.get(r[0]).e.push({ time: r[2], act: r[4], rem: r[5], map: r[6], ref: r[7] }); }
                 });
 
@@ -337,11 +342,40 @@
             }});
         }
 
+        // === 2. 酒店逻辑 ===
+        function loadHotels() {
+            Papa.parse(urls.hotel + '&_=' + new Date().getTime(), { download: true, complete: res => {
+                const cont = document.getElementById('hotel-container');
+                cont.innerHTML = "";
+                if(!res.data || res.data.length < 2) return;
+                res.data.slice(1).forEach((h, i) => {
+                    if(!h[2]) return; 
+                    const tag = h[4] || '住宿';
+                    const tagClass = tag.toLowerCase().includes('airbnb') ? 'tag-airbnb' : 'tag-hotel';
+                    cont.innerHTML += `
+                        <div class="hotel-card">
+                            <span class="hotel-tag ${tagClass}">${tag}</span>
+                            <div class="hotel-header-row"><i class="fas fa-map-marker-alt hotel-icon-pin"></i><div class="hotel-title">${i + 1}. ${h[1]}: ${h[2]}</div></div>
+                            <div class="hotel-date">${h[0] || ''}</div>
+                            <div class="hotel-address-box"><div>${h[3] || '暂无地址'}</div>${h[5] ? `<span class="hotel-remark">${h[5]}</span>` : ''}</div>
+                            <div class="hotel-btns">
+                                ${h[6] ? `<a href="${h[6]}" target="_blank" class="btn-nav"><i class="fas fa-location-arrow"></i> 导航前往</a>` : `<button class="btn-nav" disabled style="opacity:0.5;">暂无导航</button>`}
+                                <button class="btn-copy" onclick="copyAddress('${(h[3] || '').replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制地址</button>
+                            </div>
+                        </div>`;
+                });
+            }});
+        }
+        function copyAddress(text) {
+            if(!text) return;
+            const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            alert("✅ 地址已复制");
+        }
 
-        // === 4. 其他/备注逻辑 ===
+        // === 3. 其他/备注逻辑 ===
         function loadOthers() {
             if(!urls.other) return;
-            Papa.parse(urls.other, { download: true, complete: res => {
+            Papa.parse(urls.other + '&_=' + new Date().getTime(), { download: true, complete: res => {
                 const data = res.data;
                 if(!data || data.length < 2) return;
                 
@@ -395,40 +429,10 @@
                 });
             }});
         }
-        
-        
-        // === 2. 酒店逻辑 ===
-        function loadHotels() {
-            Papa.parse(urls.hotel, { download: true, complete: res => {
-                const cont = document.getElementById('hotel-container');
-                cont.innerHTML = "";
-                res.data.slice(1).forEach((h, i) => {
-                    if(!h[2]) return; 
-                    const tag = h[4] || '住宿';
-                    const tagClass = tag.toLowerCase().includes('airbnb') ? 'tag-airbnb' : 'tag-hotel';
-                    cont.innerHTML += `
-                        <div class="hotel-card">
-                            <span class="hotel-tag ${tagClass}">${tag}</span>
-                            <div class="hotel-header-row"><i class="fas fa-map-marker-alt hotel-icon-pin"></i><div class="hotel-title">${i + 1}. ${h[1]}: ${h[2]}</div></div>
-                            <div class="hotel-date">${h[0] || ''}</div>
-                            <div class="hotel-address-box"><div>${h[3] || '暂无地址'}</div>${h[5] ? `<span class="hotel-remark">*${h[5]}</span>` : ''}</div>
-                            <div class="hotel-btns">
-                                ${h[6] ? `<a href="${h[6]}" target="_blank" class="btn-nav"><i class="fas fa-location-arrow"></i> 导航前往</a>` : `<button class="btn-nav" disabled style="opacity:0.5;">暂无导航</button>`}
-                                <button class="btn-copy" onclick="copyAddress('${(h[3] || '').replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制地址</button>
-                            </div>
-                        </div>`;
-                });
-            }});
-        }
-        function copyAddress(text) {
-            if(!text) return;
-            const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-            alert("✅ 地址已复制");
-        }
 
-        // === 3. 记账逻辑 + 复制功能 ===
+        // === 4. 记账逻辑 + 复制功能 ===
         function loadSettings() {
-            Papa.parse(urls.settings, { download: true, complete: res => {
+            Papa.parse(urls.settings + '&_=' + new Date().getTime(), { download: true, complete: res => {
                 const s = res.data;
                 if(s && s.length > 2) {
                     config.home = s[1][1] || 'MYR'; 
@@ -480,7 +484,6 @@
             }
         }
 
-        // 🌟 新增：一键清账的核心功能
         function settleDebt(payer, receiver, amount) {
             if(!confirm(`确定已结清？将记录: ${payer} 转账给 ${receiver} ${amount} JPY`)) return;
             
@@ -488,10 +491,10 @@
             const newEx = {
                 id: Date.now(),
                 amount: amount,
-                note: `${payer} ➔ ${receiver}`, // 记录谁转给谁
-                cat: 'Settlement',             // 专属分类：结账
+                note: `${payer} ➔ ${receiver}`, 
+                cat: 'Settlement',             
                 payer: payer,
-                icon: 'fa-exchange-alt',       // 结账专属图标
+                icon: 'fa-exchange-alt',       
                 timestamp: now.getTime()
             };
             
@@ -564,7 +567,6 @@
                 const textCol = isSettlement ? '#2E7D32' : '#C41E3A';
                 const titleNote = isSettlement ? '🤝 结账清零' : e.note;
                 
-                // 🌟 修复的地方在这里：让结账记录也显示 🕒 时间
                 const payerNote = isSettlement ? `🕒 ${timeStr} • <strong style="color:${textCol}">${e.note}</strong>` : `🕒 ${timeStr} • <strong style="color:${textCol}">${currentPayer}</strong> 付款`;
 
                 list.innerHTML += `
