@@ -19,13 +19,28 @@
     <style>
         :root { --primary: #C41E3A; --dark-red: #8E0E25; --bg: #F5F7FA; }
         * { box-sizing: border-box; }
-        html { background-color: var(--primary); }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: #333; -webkit-tap-highlight-color: transparent; min-height: 100vh; }
+        
+        /* 🌟 电脑端手机壳优化：让网页在电脑上看起来像个手机App，不会拉爆！ */
+        html { background-color: #E5E7EB; display: flex; justify-content: center; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding-bottom: 120px; 
+            color: #333; 
+            -webkit-tap-highlight-color: transparent; 
+            width: 100%; 
+            max-width: 480px; /* 限制最大宽度 */
+            min-height: 100vh; 
+            box-shadow: 0 0 30px rgba(0,0,0,0.08); /* 加个高级阴影 */
+            position: relative;
+        }
+
         header { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); padding: 15px 25px; border-top: 15px solid var(--primary); position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(196, 30, 58, 0.08); transition: all 0.3s ease; }
         h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
         p { margin: 0; color: #888; font-size: 0.9rem; font-weight: 500; }
         .credit-tag { font-size: 0.65rem; color: #ddd !important; font-style: italic; }
-        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content { display: none; animation: fadeIn 0.3s; text-align: left; } /* 强制左对齐，修复居中Bug */
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
@@ -45,7 +60,7 @@
         .btn-del { border: none; background: none; color: #ddd; margin-left: 10px; padding: 5px; }
 
         /* Itinerary Styles */
-        .card { background: white; border-radius: 12px; margin: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: none; }
+        .card { background: white; border-radius: 12px; margin: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: none; text-align: left; }
         .card-header { display: flex; height: 80px; cursor: pointer; transition: background 0.2s; }
         .header-left { background: #BC002D; color: white; width: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .day-num { font-size: 1.5rem; font-weight: 900; line-height: 1.1; }
@@ -56,16 +71,16 @@
         .card.open .toggle-icon { transform: rotate(180deg); color: #BC002D; }
         .card-body { display: none; padding: 25px 20px; border-top: 1px solid #f5f5f5; }
         .card.open .card-body { display: block; }
-        .timeline-item { position: relative; padding-left: 25px; border-left: 2px solid #eee; padding-bottom: 30px; margin-left: 10px; }
+        .timeline-item { position: relative; padding-left: 25px; border-left: 2px solid #eee; padding-bottom: 30px; margin-left: 10px; text-align: left; }
         .timeline-item:last-child { border-left-color: transparent; padding-bottom: 0; }
         .timeline-dot { position: absolute; left: -7px; top: 4px; width: 10px; height: 10px; background: white; border: 3px solid #BC002D; border-radius: 50%; }
         .event-time { color: #BC002D; font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; display: block; font-family: monospace; }
         .event-act { font-weight: 800; font-size: 1.05rem; color: #222; margin-bottom: 8px; }
-        .event-remark { background: #FFF0F5; border-left: 4px solid #BC002D; padding: 10px 12px; border-radius: 4px; font-size: 0.9rem; color: #555; line-height: 1.5; margin-bottom: 10px; white-space: pre-line; }
+        .event-remark { background: #FFF0F5; border-left: 4px solid #BC002D; padding: 10px 12px; border-radius: 4px; font-size: 0.9rem; color: #555; line-height: 1.5; margin-bottom: 10px; }
         a.nav-btn { display: inline-flex; align-items: center; gap: 6px; background: #BC002D; color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; font-weight: 600; margin-top: 5px; box-shadow: 0 2px 5px rgba(188, 0, 45, 0.2); }
         
         /* Hotel Styles */
-        .hotel-card { background: white; border-radius: 12px; margin: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.03); }
+        .hotel-card { background: white; border-radius: 12px; margin: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.03); text-align: left; }
         .hotel-tag { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; margin-bottom: 10px; }
         .tag-airbnb { background: #E8F5E9; color: #2E7D32; }
         .tag-hotel { background: #E3F2FD; color: #1565C0; }
@@ -74,13 +89,13 @@
         .hotel-title { font-size: 1.15rem; font-weight: 800; color: #333; line-height: 1.4; }
         .hotel-date { font-size: 0.8rem; color: #999; margin-bottom: 15px; padding-left: 2px; }
         .hotel-address-box { background: #F9FAFB; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.95rem; color: #333; font-weight: 600; line-height: 1.6; }
-        .hotel-remark { font-size: 0.85rem; color: #666; font-weight: 400; margin-top: 6px; display: block; white-space: pre-line; }
+        .hotel-remark { font-size: 0.85rem; color: #666; font-weight: 400; margin-top: 6px; display: block; line-height: 1.5; }
         .hotel-btns { display: flex; gap: 10px; }
         .btn-nav { flex: 2; background: #BC002D; color: white; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.9rem; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 10px rgba(188, 0, 45, 0.2); }
         .btn-copy { flex: 1; background: #F0F0F0; color: #333; text-align: center; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         
         /* Others/Notes Styles */
-        .note-card { margin: 0 15px 12px 15px; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .note-card { margin: 0 15px 12px 15px; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.03); text-align: left; }
         .note-header { padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
         .note-green { background-color: #E8F5E9; }
         .note-yellow { background-color: #FFFDE7; }
@@ -93,7 +108,7 @@
         .note-item-row { display: flex; align-items: center; font-size: 0.85rem; padding: 10px 0; border-bottom: 1px dashed #f0f0f0; }
         .note-item-row:last-child { border-bottom: none; padding-bottom: 0; }
         .note-loc { flex: 1.2; color: #2E7D32; font-weight: 700; }
-        .note-shop { flex: 2; color: #555; white-space: pre-line; line-height: 1.4; }
+        .note-shop { flex: 2; color: #555; line-height: 1.4; }
         .note-nav { width: 50px; text-align: right; }
         .note-go-btn { background: white; color: #C41E3A; border: 1px solid #C41E3A; padding: 4px 10px; border-radius: 15px; text-decoration: none; font-weight: 800; font-size: 0.75rem; display: inline-block; box-shadow: 0 2px 4px rgba(196, 30, 58, 0.1); }
 
@@ -108,13 +123,26 @@
     <header>
         <h1 id="app-title">2026 Japan Trip</h1>
         <div class="subtitle-row" style="display:flex; justify-content:space-between; align-items:center;">
-            <p id="app-subtitle">正在获取最新行程...</p>
+            <p id="app-subtitle">获取最新数据中...</p>
             <span class="credit-tag">Created by XingKai</span>
         </div>
     </header>
 
-    <div id="tab-itinerary" class="tab-content active"><div id="itinerary-container" style="padding:20px; text-align:center; color:#888;">正在拼命加载行程数据...</div></div>
-    <div id="tab-hotel" class="tab-content"><div id="hotel-container" style="padding:20px; text-align:center; color:#888;">正在拼命加载酒店数据...</div></div>
+    <div id="tab-itinerary" class="tab-content active">
+        <div id="itinerary-container">
+            <div style="padding:40px 20px; text-align:center; color:#888;">
+                <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px; color:#C41E3A;"></i><br>正在加载行程...
+            </div>
+        </div>
+    </div>
+    
+    <div id="tab-hotel" class="tab-content">
+        <div id="hotel-container">
+            <div style="padding:40px 20px; text-align:center; color:#888;">
+                <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px; color:#C41E3A;"></i><br>正在加载酒店...
+            </div>
+        </div>
+    </div>
     
     <div id="tab-expense" class="tab-content">
         <div class="expense-header">
@@ -166,7 +194,13 @@
         <div id="expense-list" style="padding:0 15px;"></div>
     </div>
     
-    <div id="tab-other" class="tab-content"><div id="other-container" style="padding:20px; text-align:center; color:#888;">正在拼命加载其他数据...</div></div>
+    <div id="tab-other" class="tab-content">
+        <div id="other-container">
+            <div style="padding:40px 20px; text-align:center; color:#888;">
+                <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px; color:#C41E3A;"></i><br>正在加载其他清单...
+            </div>
+        </div>
+    </div>
 
     <nav class="tab-bar">
         <div class="tab-item active" onclick="switchTab('itinerary', this)"><span>📅</span>行程</div>
@@ -188,7 +222,6 @@
             } catch (e) {}
         }
 
-        // 🌟 移除容易引起 Google 防火墙拦截的动态时间戳参数，直接使用纯净网址
         const urls = {
             itinerary: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=0&single=true&output=csv',
             hotel: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=1936513680&single=true&output=csv',
@@ -207,12 +240,10 @@
 
         window.onload = function() {
             generateMobileAppIcon();
-            
-            // 独立加载，绝不互相干扰
-            loadItinerary();
-            loadHotels();
-            loadOthers();
-            loadSettings();
+            setTimeout(loadItinerary, 100);
+            setTimeout(loadHotels, 300);
+            setTimeout(loadOthers, 500);
+            setTimeout(loadSettings, 700);
             renderExpenses();
         };
 
@@ -231,16 +262,7 @@
                     try {
                         const data = res.data;
                         const cont = document.getElementById('itinerary-container');
-                        
-                        if(!data || data.length === 0) {
-                            cont.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>获取不到行程数据。</p>";
-                            return;
-                        }
-
-                        if (String(data[0][0]).toLowerCase().includes('<!doctype html>')) {
-                            cont.innerHTML = "<div style='margin:20px; padding:20px; background:#FFEbee; color:#C41E3A; border-radius:10px; text-align:center; font-weight:bold;'>⚠️ 错误：行程表未完全公开！<br>请在表格中选择 [发布整个文档]。</div>";
-                            return;
-                        }
+                        if(!data || data.length === 0) return;
                         
                         if(data[0] && data[0][1]) document.getElementById('app-title').innerText = data[0][1];
                         if(data[1] && data[1][1]) document.getElementById('app-subtitle').innerText = data[1][1];
@@ -254,25 +276,30 @@
                             if (!daysMap.has(colA)) { daysMap.set(colA, { n: colA, d: r[1] || '', l: r[3] || '行程', e: [] }); }
                             if (r[3] || r[4] || r[2]) {
                                 daysMap.get(colA).e.push({
-                                    time: r[2] || '', act: r[4] || r[3] || '📍', rem: r[5] || '', map: r[6] || '', ref: r[7] || ''
+                                    time: r[2] || '', act: r[4] || r[3] || '', rem: r[5] || '', map: r[6] || '', ref: r[7] || ''
                                 });
                             }
                         });
 
                         cont.innerHTML = "";
-                        if(daysMap.size === 0) { cont.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>行程表里没有数据。</p>"; return; }
-
                         daysMap.forEach(d => {
                             let evs = d.e.map(e => {
                                 const mapLink = e.map && String(e.map).startsWith('http') ? `<a href="${e.map}" target="_blank" class="nav-btn">📍 路线</a>` : '';
                                 const refLink = e.ref && String(e.ref).startsWith('http') ? `<a href="${e.ref}" target="_blank" class="nav-btn" style="background: #444; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🔗 参考</a>` : '';
-                                return `<div class="timeline-item"><div class="timeline-dot"></div><span class="event-time">${e.time}</span><div class="event-act">${e.act}</div>${e.rem ? `<div class="event-remark">${e.rem}</div>` : ''}${mapLink || refLink ? `<div style="display: flex; gap: 8px; flex-wrap: wrap;">${mapLink}${refLink}</div>` : ''}</div>`;
+                                
+                                // 🌟 修复换行：自动把换行符或者 * 号变成换行
+                                let remarkHtml = '';
+                                if(e.rem) {
+                                    let formattedRem = String(e.rem).replace(/\n/g, '<br>');
+                                    remarkHtml = `<div class="event-remark">${formattedRem}</div>`;
+                                }
+
+                                return `<div class="timeline-item"><div class="timeline-dot"></div><span class="event-time">${e.time}</span><div class="event-act">${e.act}</div>${remarkHtml}${mapLink || refLink ? `<div style="display: flex; gap: 8px; flex-wrap: wrap;">${mapLink}${refLink}</div>` : ''}</div>`;
                             }).join('');
                             cont.innerHTML += `<div class="card"><div class="card-header" onclick="this.parentElement.classList.toggle('open')"><div class="header-left"><div class="day-num">${d.n}</div><div class="day-date">${d.d}</div></div><div class="header-right"><div class="day-title">${d.l}</div><i class="fas fa-chevron-down toggle-icon"></i></div></div><div class="card-body">${evs}</div></div>`;
                         });
-                    } catch (e) { document.getElementById('itinerary-container').innerHTML = `<p style="color:red; text-align:center;">读取报错: ${e.message}</p>`; }
-                },
-                error: function() { document.getElementById('itinerary-container').innerHTML = "<p style='color:red; text-align:center; padding: 20px;'>网络错误：Google服务器拒绝了请求。请检查表格发布设置。</p>"; }
+                    } catch (e) {}
+                }
             });
         }
 
@@ -284,27 +311,30 @@
                     try {
                         const data = res.data;
                         const cont = document.getElementById('hotel-container');
-                        if(!data || data.length === 0) { cont.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>获取不到酒店数据。</p>"; return; }
+                        if(!data || data.length === 0) return;
                         
-                        if (String(data[0][0]).toLowerCase().includes('<!doctype html>')) {
-                            cont.innerHTML = "<div style='margin:20px; padding:20px; background:#FFEbee; color:#C41E3A; border-radius:10px; text-align:center; font-weight:bold;'>⚠️ 错误：酒店表未完全公开！</div>";
-                            return;
-                        }
-
                         cont.innerHTML = "";
                         data.forEach((h, index) => {
-                            if (index === 0) return; // 跳过表头
-                            if(!h || !h[2] || String(h[2]).trim() === '') return; 
+                            if (index === 0) return; 
+                            if(!h || !h[2] || String(h[2]).trim() === '' || String(h[2]).includes('表头')) return; 
+                            
                             const tag = h[4] || '住宿';
                             const tagClass = String(tag).toLowerCase().includes('airbnb') ? 'tag-airbnb' : 'tag-hotel';
                             const mapBtn = (h[6] && String(h[6]).startsWith('http')) ? `<a href="${h[6]}" target="_blank" class="btn-nav"><i class="fas fa-location-arrow"></i> 导航前往</a>` : `<button class="btn-nav" disabled style="opacity:0.5;">暂无导航</button>`;
                             const addr = h[3] || '暂无地址';
                             
-                            cont.innerHTML += `<div class="hotel-card"><span class="hotel-tag ${tagClass}">${tag}</span><div class="hotel-header-row"><i class="fas fa-map-marker-alt hotel-icon-pin"></i><div class="hotel-title">${h[1] || ''}: ${h[2]}</div></div><div class="hotel-date">${h[0] || ''}</div><div class="hotel-address-box"><div>${addr}</div>${h[5] ? `<span class="hotel-remark">${h[5]}</span>` : ''}</div><div class="hotel-btns">${mapBtn}<button class="btn-copy" onclick="copyAddress('${addr.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制地址</button></div></div>`;
+                            // 🌟 修复酒店换行：把所有的 \n 或者 * 变成漂亮的换行！
+                            let remarkHtml = '';
+                            if(h[5]) {
+                                let formattedRem = String(h[5]).replace(/\n/g, '<br>').replace(/\*/g, '<br>*');
+                                if (formattedRem.startsWith('<br>')) formattedRem = formattedRem.substring(4); // 删掉开头的多余换行
+                                remarkHtml = `<span class="hotel-remark">${formattedRem}</span>`;
+                            }
+                            
+                            cont.innerHTML += `<div class="hotel-card"><span class="hotel-tag ${tagClass}">${tag}</span><div class="hotel-header-row"><i class="fas fa-map-marker-alt hotel-icon-pin"></i><div class="hotel-title">${h[1] || ''}: ${h[2]}</div></div><div class="hotel-date">${h[0] || ''}</div><div class="hotel-address-box"><div>${addr}</div>${remarkHtml}</div><div class="hotel-btns">${mapBtn}<button class="btn-copy" onclick="copyAddress('${addr.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制地址</button></div></div>`;
                         });
                     } catch (e) {}
-                },
-                error: function() { document.getElementById('hotel-container').innerHTML = "<p style='color:red; text-align:center; padding: 20px;'>网络错误：Google服务器拒绝了酒店数据的请求。</p>"; }
+                }
             });
         }
 
@@ -322,13 +352,15 @@
                     try {
                         const data = res.data;
                         const cont = document.getElementById('other-container');
-                        if(!data || data.length === 0) { cont.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>获取不到其他清单数据。</p>"; return; }
+                        if(!data || data.length === 0) return;
                         
                         let notesMap = new Map();
                         data.forEach((r, index) => {
-                            if (index === 0) return; // 跳过表头
-                            if(!r || !r[0] || String(r[0]).trim() === '') return; 
+                            if (index === 0) return; 
+                            if(!r || !r[0]) return; 
                             const cat = String(r[0]).trim();
+                            if (cat === '' || cat.includes('表头')) return; // 跳过不小心填入的表头标记
+                            
                             const color = r[1] || 'Green';
                             if(!notesMap.has(cat)) { notesMap.set(cat, { cat: cat, color: color, items: [] }); }
                             if(r[2] || r[3]) { notesMap.get(cat).items.push({ loc: r[2] || '', shop: r[3] || '', map: r[4] || '' }); }
@@ -337,7 +369,12 @@
                         cont.innerHTML = "";
                         notesMap.forEach(n => {
                             const bgClass = String(n.color).toLowerCase() === 'yellow' ? 'note-yellow' : 'note-green';
-                            let itemsHtml = n.items.map(i => `<div class="note-item-row"><div class="note-loc">${i.loc}</div><div class="note-shop">${i.shop}</div><div class="note-nav">${i.map && String(i.map).startsWith('http') ? `<a href="${i.map}" target="_blank" class="note-go-btn">📍 GO</a>` : ''}</div></div>`).join('');
+                            let itemsHtml = n.items.map(i => {
+                                // 🌟 修复换行
+                                let formattedShop = String(i.shop).replace(/\n/g, '<br>');
+                                return `<div class="note-item-row"><div class="note-loc">${i.loc}</div><div class="note-shop">${formattedShop}</div><div class="note-nav">${i.map && String(i.map).startsWith('http') ? `<a href="${i.map}" target="_blank" class="note-go-btn">📍 GO</a>` : ''}</div></div>`;
+                            }).join('');
+                            
                             if (n.items.length > 0) { itemsHtml = `<div class="note-item-header"><div>地点</div><div>推荐店铺</div><div>导航</div></div>` + itemsHtml; } 
                             else { itemsHtml = `<div style="text-align:center; color:#999; font-size:0.8rem;">暂无详细内容</div>`; }
                             cont.innerHTML += `<div class="note-card"><div class="note-header ${bgClass}" onclick="this.parentElement.classList.toggle('open')"><div style="font-weight: 800; color: #333; font-size: 0.95rem;">${n.cat}</div><i class="fas fa-caret-down note-arrow"></i></div><div class="note-body">${itemsHtml}</div></div>`;
