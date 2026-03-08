@@ -188,6 +188,7 @@
             } catch (e) {}
         }
 
+        // 🌟 移除容易引起 Google 防火墙拦截的动态时间戳参数，直接使用纯净网址
         const urls = {
             itinerary: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=0&single=true&output=csv',
             hotel: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSArwOsSbsvY4h0C2J4tzQMJemATwDZGRbrZqM06etsGGA3GO8NDGoeysD0QHziK_Y00-GuzKom9ks4/pub?gid=1936513680&single=true&output=csv',
@@ -206,13 +207,12 @@
 
         window.onload = function() {
             generateMobileAppIcon();
-            document.getElementById('app-title').innerText = "2026 日本之旅 JAPAN TRIP";
             
-            // 安全调用，即使一个失败也不会影响另一个
-            setTimeout(loadItinerary, 100);
-            setTimeout(loadHotels, 300);
-            setTimeout(loadOthers, 500);
-            setTimeout(loadSettings, 700);
+            // 独立加载，绝不互相干扰
+            loadItinerary();
+            loadHotels();
+            loadOthers();
+            loadSettings();
             renderExpenses();
         };
 
@@ -225,7 +225,7 @@
 
         // === 1. 行程逻辑 ===
         function loadItinerary() {
-            Papa.parse(urls.itinerary + '&_=' + new Date().getTime(), { 
+            Papa.parse(urls.itinerary, { 
                 download: true, 
                 complete: function(res) {
                     try {
@@ -237,12 +237,12 @@
                             return;
                         }
 
-                        // 💡 侦测是否未公开 (返回的是 Google 登录 HTML)
                         if (String(data[0][0]).toLowerCase().includes('<!doctype html>')) {
-                            cont.innerHTML = "<div style='margin:20px; padding:20px; background:#FFEbee; color:#C41E3A; border-radius:10px; text-align:center; font-weight:bold;'>⚠️ 严重错误：您的行程表【未公开】！<br><br>请在 Google Sheet 点 File ➔ Share ➔ Publish to web ➔ 重新发布！</div>";
+                            cont.innerHTML = "<div style='margin:20px; padding:20px; background:#FFEbee; color:#C41E3A; border-radius:10px; text-align:center; font-weight:bold;'>⚠️ 错误：行程表未完全公开！<br>请在表格中选择 [发布整个文档]。</div>";
                             return;
                         }
                         
+                        if(data[0] && data[0][1]) document.getElementById('app-title').innerText = data[0][1];
                         if(data[1] && data[1][1]) document.getElementById('app-subtitle').innerText = data[1][1];
                         
                         let daysMap = new Map();
@@ -260,7 +260,7 @@
                         });
 
                         cont.innerHTML = "";
-                        if(daysMap.size === 0) { cont.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>行程表里好像没写内容。</p>"; return; }
+                        if(daysMap.size === 0) { cont.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>行程表里没有数据。</p>"; return; }
 
                         daysMap.forEach(d => {
                             let evs = d.e.map(e => {
@@ -270,15 +270,15 @@
                             }).join('');
                             cont.innerHTML += `<div class="card"><div class="card-header" onclick="this.parentElement.classList.toggle('open')"><div class="header-left"><div class="day-num">${d.n}</div><div class="day-date">${d.d}</div></div><div class="header-right"><div class="day-title">${d.l}</div><i class="fas fa-chevron-down toggle-icon"></i></div></div><div class="card-body">${evs}</div></div>`;
                         });
-                    } catch (e) { document.getElementById('itinerary-container').innerHTML = `<p style="color:red; text-align:center;">行程读取报错: ${e.message}</p>`; }
+                    } catch (e) { document.getElementById('itinerary-container').innerHTML = `<p style="color:red; text-align:center;">读取报错: ${e.message}</p>`; }
                 },
-                error: function() { document.getElementById('itinerary-container').innerHTML = "<p style='color:red; text-align:center;'>网络错误，请刷新重试</p>"; }
+                error: function() { document.getElementById('itinerary-container').innerHTML = "<p style='color:red; text-align:center; padding: 20px;'>网络错误：Google服务器拒绝了请求。请检查表格发布设置。</p>"; }
             });
         }
 
         // === 2. 酒店逻辑 ===
         function loadHotels() {
-            Papa.parse(urls.hotel + '&_=' + new Date().getTime(), { 
+            Papa.parse(urls.hotel, { 
                 download: true, 
                 complete: function(res) {
                     try {
@@ -287,7 +287,7 @@
                         if(!data || data.length === 0) { cont.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>获取不到酒店数据。</p>"; return; }
                         
                         if (String(data[0][0]).toLowerCase().includes('<!doctype html>')) {
-                            cont.innerHTML = "<div style='margin:20px; padding:20px; background:#FFEbee; color:#C41E3A; border-radius:10px; text-align:center; font-weight:bold;'>⚠️ 严重错误：您的酒店表【未公开】！</div>";
+                            cont.innerHTML = "<div style='margin:20px; padding:20px; background:#FFEbee; color:#C41E3A; border-radius:10px; text-align:center; font-weight:bold;'>⚠️ 错误：酒店表未完全公开！</div>";
                             return;
                         }
 
@@ -303,7 +303,8 @@
                             cont.innerHTML += `<div class="hotel-card"><span class="hotel-tag ${tagClass}">${tag}</span><div class="hotel-header-row"><i class="fas fa-map-marker-alt hotel-icon-pin"></i><div class="hotel-title">${h[1] || ''}: ${h[2]}</div></div><div class="hotel-date">${h[0] || ''}</div><div class="hotel-address-box"><div>${addr}</div>${h[5] ? `<span class="hotel-remark">${h[5]}</span>` : ''}</div><div class="hotel-btns">${mapBtn}<button class="btn-copy" onclick="copyAddress('${addr.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制地址</button></div></div>`;
                         });
                     } catch (e) {}
-                }
+                },
+                error: function() { document.getElementById('hotel-container').innerHTML = "<p style='color:red; text-align:center; padding: 20px;'>网络错误：Google服务器拒绝了酒店数据的请求。</p>"; }
             });
         }
 
@@ -315,18 +316,13 @@
 
         // === 3. 其他/备注逻辑 ===
         function loadOthers() {
-            Papa.parse(urls.other + '&_=' + new Date().getTime(), { 
+            Papa.parse(urls.other, { 
                 download: true, 
                 complete: function(res) {
                     try {
                         const data = res.data;
                         const cont = document.getElementById('other-container');
                         if(!data || data.length === 0) { cont.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>获取不到其他清单数据。</p>"; return; }
-                        
-                        if (String(data[0][0]).toLowerCase().includes('<!doctype html>')) {
-                            cont.innerHTML = "<div style='margin:20px; padding:20px; background:#FFEbee; color:#C41E3A; border-radius:10px; text-align:center; font-weight:bold;'>⚠️ 严重错误：您的其他清单表【未公开】！</div>";
-                            return;
-                        }
                         
                         let notesMap = new Map();
                         data.forEach((r, index) => {
@@ -353,7 +349,7 @@
 
         // === 4. 记账与结账逻辑 ===
         function loadSettings() {
-            Papa.parse(urls.settings + '&_=' + new Date().getTime(), { 
+            Papa.parse(urls.settings, { 
                 download: true, 
                 complete: function(res) {
                     try {
