@@ -20,7 +20,7 @@
         :root { --primary: #C41E3A; --dark-red: #8E0E25; --bg: #F5F7FA; }
         * { box-sizing: border-box; }
         
-        /* 🌟 电脑端手机壳优化：让网页在电脑上看起来像个手机App，不会拉爆！ */
+        /* 🌟 电脑端手机壳优化 */
         html { background-color: #E5E7EB; display: flex; justify-content: center; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
@@ -30,9 +30,9 @@
             color: #333; 
             -webkit-tap-highlight-color: transparent; 
             width: 100%; 
-            max-width: 480px; /* 限制最大宽度 */
+            max-width: 480px; 
             min-height: 100vh; 
-            box-shadow: 0 0 30px rgba(0,0,0,0.08); /* 加个高级阴影 */
+            box-shadow: 0 0 30px rgba(0,0,0,0.08); 
             position: relative;
         }
 
@@ -40,7 +40,7 @@
         h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
         p { margin: 0; color: #888; font-size: 0.9rem; font-weight: 500; }
         .credit-tag { font-size: 0.65rem; color: #ddd !important; font-style: italic; }
-        .tab-content { display: none; animation: fadeIn 0.3s; text-align: left; } /* 强制左对齐，修复居中Bug */
+        .tab-content { display: none; animation: fadeIn 0.3s; text-align: left; } 
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
@@ -97,11 +97,16 @@
         /* Others/Notes Styles */
         .note-card { margin: 0 15px 12px 15px; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.03); text-align: left; }
         .note-header { padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
-        .note-green { background-color: #E8F5E9; }
-        .note-yellow { background-color: #FFFDE7; }
+        
+        /* 🌈 修复：保留原有的绿色和黄色，增加蓝色和粉色，并处理文字颜色 */
+        .note-green { background-color: #E8F5E9; color: #333; }
+        .note-yellow { background-color: #FFFDE7; color: #333; }
+        .note-blue { background-color: #E1F5FE; color: #333; }  /* 浅蓝色 */
+        .note-pink { background-color: #FCE4EC; color: #333; }  /* 浅粉色 */
+        
         .note-arrow { color: #888; transition: transform 0.3s; }
         .note-card.open .note-arrow { transform: rotate(180deg); color: #C41E3A; }
-        .note-body { display: none; padding: 15px; border-top: 1px solid #f0f0f0; }
+        .note-body { display: none; padding: 15px; border-top: 1px solid #f0f0f0; background-color: #fff; color: #333; }
         .note-card.open .note-body { display: block; animation: fadeIn 0.3s; }
         .note-item-header { display: flex; font-size: 0.75rem; color: #888; margin-bottom: 8px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         .note-item-header div:nth-child(1) { flex: 1.2; } .note-item-header div:nth-child(2) { flex: 2; } .note-item-header div:nth-child(3) { width: 50px; text-align: right; }
@@ -287,7 +292,6 @@
                                 const mapLink = e.map && String(e.map).startsWith('http') ? `<a href="${e.map}" target="_blank" class="nav-btn">📍 路线</a>` : '';
                                 const refLink = e.ref && String(e.ref).startsWith('http') ? `<a href="${e.ref}" target="_blank" class="nav-btn" style="background: #444; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🔗 参考</a>` : '';
                                 
-                                // 🌟 修复换行：自动把换行符或者 * 号变成换行
                                 let remarkHtml = '';
                                 if(e.rem) {
                                     let formattedRem = String(e.rem).replace(/\n/g, '<br>');
@@ -323,11 +327,10 @@
                             const mapBtn = (h[6] && String(h[6]).startsWith('http')) ? `<a href="${h[6]}" target="_blank" class="btn-nav"><i class="fas fa-location-arrow"></i> 导航前往</a>` : `<button class="btn-nav" disabled style="opacity:0.5;">暂无导航</button>`;
                             const addr = h[3] || '暂无地址';
                             
-                            // 🌟 修复酒店换行：把所有的 \n 或者 * 变成漂亮的换行！
                             let remarkHtml = '';
                             if(h[5]) {
                                 let formattedRem = String(h[5]).replace(/\n/g, '<br>').replace(/\*/g, '<br>*');
-                                if (formattedRem.startsWith('<br>')) formattedRem = formattedRem.substring(4); // 删掉开头的多余换行
+                                if (formattedRem.startsWith('<br>')) formattedRem = formattedRem.substring(4); 
                                 remarkHtml = `<span class="hotel-remark">${formattedRem}</span>`;
                             }
                             
@@ -359,7 +362,7 @@
                             if (index === 0) return; 
                             if(!r || !r[0]) return; 
                             const cat = String(r[0]).trim();
-                            if (cat === '' || cat.includes('表头')) return; // 跳过不小心填入的表头标记
+                            if (cat === '' || cat.includes('表头')) return; 
                             
                             const color = r[1] || 'Green';
                             if(!notesMap.has(cat)) { notesMap.set(cat, { cat: cat, color: color, items: [] }); }
@@ -367,10 +370,25 @@
                         });
 
                         cont.innerHTML = "";
+                        
+                        // 🌈 修复：定义颜色映射表，支持中文名称
+                        const colorClassMap = {
+                            '绿色': 'note-green',
+                            'green': 'note-green',
+                            '黄色': 'note-yellow',
+                            'yellow': 'note-yellow',
+                            '蓝色': 'note-blue',
+                            'blue': 'note-blue',
+                            '粉色': 'note-pink',
+                            'pink': 'note-pink'
+                        };
+
                         notesMap.forEach(n => {
-                            const bgClass = String(n.color).toLowerCase() === 'yellow' ? 'note-yellow' : 'note-green';
+                            // 🌈 修复：根据表格填写的颜色获取 CSS 类名，默认为绿色
+                            const rawColor = String(n.color).toLowerCase().trim();
+                            const bgClass = colorClassMap[rawColor] || 'note-green';
+                            
                             let itemsHtml = n.items.map(i => {
-                                // 🌟 修复换行
                                 let formattedShop = String(i.shop).replace(/\n/g, '<br>');
                                 return `<div class="note-item-row"><div class="note-loc">${i.loc}</div><div class="note-shop">${formattedShop}</div><div class="note-nav">${i.map && String(i.map).startsWith('http') ? `<a href="${i.map}" target="_blank" class="note-go-btn">📍 GO</a>` : ''}</div></div>`;
                             }).join('');
