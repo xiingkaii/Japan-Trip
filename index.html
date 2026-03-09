@@ -20,20 +20,12 @@
         :root { --primary: #C41E3A; --dark-red: #8E0E25; --bg: #F5F7FA; }
         * { box-sizing: border-box; }
         
-        /* 🌟 电脑端手机壳优化 */
         html { background-color: #E5E7EB; display: flex; justify-content: center; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg); 
-            margin: 0; 
-            padding-bottom: 120px; 
-            color: #333; 
-            -webkit-tap-highlight-color: transparent; 
-            width: 100%; 
-            max-width: 480px; 
-            min-height: 100vh; 
-            box-shadow: 0 0 30px rgba(0,0,0,0.08); 
-            position: relative;
+            background: var(--bg); margin: 0; padding-bottom: 120px; color: #333; 
+            -webkit-tap-highlight-color: transparent; width: 100%; max-width: 480px; 
+            min-height: 100vh; box-shadow: 0 0 30px rgba(0,0,0,0.08); position: relative;
         }
 
         header { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); padding: 15px 25px; border-top: 15px solid var(--primary); position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(196, 30, 58, 0.08); transition: all 0.3s ease; }
@@ -94,28 +86,45 @@
         .btn-nav { flex: 2; background: #BC002D; color: white; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.9rem; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 10px rgba(188, 0, 45, 0.2); }
         .btn-copy { flex: 1; background: #F0F0F0; color: #333; text-align: center; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         
-        /* Others/Notes Styles */
+        /* === 🌟 全新升级的 其他/备注页面排版 === */
         .note-card { margin: 0 15px 12px 15px; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.03); text-align: left; }
         .note-header { padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
         
-        /* 🌈 修复：保留原有的绿色和黄色，增加蓝色和粉色，并处理文字颜色 */
         .note-green { background-color: #E8F5E9; color: #333; }
         .note-yellow { background-color: #FFFDE7; color: #333; }
-        .note-blue { background-color: #E1F5FE; color: #333; }  /* 浅蓝色 */
-        .note-pink { background-color: #FCE4EC; color: #333; }  /* 浅粉色 */
+        .note-blue { background-color: #E1F5FE; color: #333; }
+        .note-pink { background-color: #FCE4EC; color: #333; }
         
         .note-arrow { color: #888; transition: transform 0.3s; }
         .note-card.open .note-arrow { transform: rotate(180deg); color: #C41E3A; }
         .note-body { display: none; padding: 15px; border-top: 1px solid #f0f0f0; background-color: #fff; color: #333; }
         .note-card.open .note-body { display: block; animation: fadeIn 0.3s; }
-        .note-item-header { display: flex; font-size: 0.75rem; color: #888; margin-bottom: 8px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .note-item-header div:nth-child(1) { flex: 1.2; } .note-item-header div:nth-child(2) { flex: 2; } .note-item-header div:nth-child(3) { width: 50px; text-align: right; }
+        
+        /* 四栏排版设计：地点、店铺、导航、Link */
+        .note-item-header { display: flex; font-size: 0.75rem; color: #888; margin-bottom: 8px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 5px; align-items: center; }
         .note-item-row { display: flex; align-items: center; font-size: 0.85rem; padding: 10px 0; border-bottom: 1px dashed #f0f0f0; }
         .note-item-row:last-child { border-bottom: none; padding-bottom: 0; }
-        .note-loc { flex: 1.2; color: #2E7D32; font-weight: 700; }
-        .note-shop { flex: 2; color: #555; line-height: 1.4; }
-        .note-nav { width: 50px; text-align: right; }
-        .note-go-btn { background: white; color: #C41E3A; border: 1px solid #C41E3A; padding: 4px 10px; border-radius: 15px; text-decoration: none; font-weight: 800; font-size: 0.75rem; display: inline-block; box-shadow: 0 2px 4px rgba(196, 30, 58, 0.1); }
+        
+        .col-loc { width: 22%; padding-right: 6px; }
+        .col-shop { flex: 1; padding-right: 6px; }
+        .col-nav { width: 40px; display: flex; justify-content: center; }
+        .col-ref { width: 40px; display: flex; justify-content: center; }
+        
+        /* 内容样式 */
+        .note-loc-text { color: #2E7D32; font-weight: 700; }
+        .note-shop-text { color: #555; line-height: 1.4; }
+        
+        /* 圆角正方形按钮 */
+        .note-sq-btn { 
+            width: 32px; height: 32px; border-radius: 8px; 
+            display: flex; align-items: center; justify-content: center; 
+            text-decoration: none; font-size: 1.1rem; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.1s;
+        }
+        .note-sq-btn:active { transform: scale(0.95); }
+        .btn-map { background: #FFF0F2; border: 1px solid #FDCED5; } /* 导航的粉色背景 */
+        .btn-link { background: #F3F4F6; border: 1px solid #E5E7EB; } /* Link的灰色背景 */
 
         /* Nav Bar */
         .tab-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 400px; background: white; border-radius: 50px; display: flex; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; }
@@ -347,7 +356,7 @@
             alert("✅ 地址已复制");
         }
 
-        // === 3. 其他/备注逻辑 ===
+        // === 3. 🌟 全新升级的 其他/备注逻辑 ===
         function loadOthers() {
             Papa.parse(urls.other, { 
                 download: true, 
@@ -366,35 +375,53 @@
                             
                             const color = r[1] || 'Green';
                             if(!notesMap.has(cat)) { notesMap.set(cat, { cat: cat, color: color, items: [] }); }
-                            if(r[2] || r[3]) { notesMap.get(cat).items.push({ loc: r[2] || '', shop: r[3] || '', map: r[4] || '' }); }
+                            
+                            // r[2]=地点, r[3]=店铺, r[4]=导航(Map), r[5]=参考(Link)
+                            if(r[2] || r[3]) { 
+                                notesMap.get(cat).items.push({ loc: r[2] || '', shop: r[3] || '', map: r[4] || '', ref: r[5] || '' }); 
+                            }
                         });
 
                         cont.innerHTML = "";
                         
-                        // 🌈 修复：定义颜色映射表，支持中文名称
                         const colorClassMap = {
-                            '绿色': 'note-green',
                             'green': 'note-green',
-                            '黄色': 'note-yellow',
                             'yellow': 'note-yellow',
-                            '蓝色': 'note-blue',
                             'blue': 'note-blue',
-                            '粉色': 'note-pink',
                             'pink': 'note-pink'
                         };
 
                         notesMap.forEach(n => {
-                            // 🌈 修复：根据表格填写的颜色获取 CSS 类名，默认为绿色
                             const rawColor = String(n.color).toLowerCase().trim();
                             const bgClass = colorClassMap[rawColor] || 'note-green';
                             
                             let itemsHtml = n.items.map(i => {
                                 let formattedShop = String(i.shop).replace(/\n/g, '<br>');
-                                return `<div class="note-item-row"><div class="note-loc">${i.loc}</div><div class="note-shop">${formattedShop}</div><div class="note-nav">${i.map && String(i.map).startsWith('http') ? `<a href="${i.map}" target="_blank" class="note-go-btn">📍 GO</a>` : ''}</div></div>`;
+                                
+                                // 生成正方形的圆角图标按钮
+                                let mapHtml = i.map && String(i.map).startsWith('http') ? `<a href="${i.map}" target="_blank" class="note-sq-btn btn-map">📍</a>` : '';
+                                let refHtml = i.ref && String(i.ref).startsWith('http') ? `<a href="${i.ref}" target="_blank" class="note-sq-btn btn-link">🔗</a>` : '';
+
+                                return `
+                                <div class="note-item-row">
+                                    <div class="col-loc note-loc-text">${i.loc}</div>
+                                    <div class="col-shop note-shop-text">${formattedShop}</div>
+                                    <div class="col-nav">${mapHtml}</div>
+                                    <div class="col-ref">${refHtml}</div>
+                                </div>`;
                             }).join('');
                             
-                            if (n.items.length > 0) { itemsHtml = `<div class="note-item-header"><div>地点</div><div>推荐店铺</div><div>导航</div></div>` + itemsHtml; } 
+                            if (n.items.length > 0) { 
+                                itemsHtml = `
+                                <div class="note-item-header">
+                                    <div class="col-loc">地点</div>
+                                    <div class="col-shop">推荐店铺</div>
+                                    <div class="col-nav">导航</div>
+                                    <div class="col-ref">Link</div>
+                                </div>` + itemsHtml; 
+                            } 
                             else { itemsHtml = `<div style="text-align:center; color:#999; font-size:0.8rem;">暂无详细内容</div>`; }
+                            
                             cont.innerHTML += `<div class="note-card"><div class="note-header ${bgClass}" onclick="this.parentElement.classList.toggle('open')"><div style="font-weight: 800; color: #333; font-size: 0.95rem;">${n.cat}</div><i class="fas fa-caret-down note-arrow"></i></div><div class="note-body">${itemsHtml}</div></div>`;
                         });
                     } catch (e) {}
