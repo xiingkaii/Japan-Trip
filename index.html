@@ -20,27 +20,16 @@
         :root { --primary: #C41E3A; --dark-red: #8E0E25; --bg: #F5F7FA; }
         * { box-sizing: border-box; }
         
-        /* 🌟 手机端默认全屏排版，避开横屏时的刘海区域 */
-        html { background-color: var(--bg); }
+        html { background-color: #E5E7EB; display: flex; justify-content: center; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg); 
-            margin: 0 auto; 
+            background: var(--bg); margin: 0 auto; 
             padding-top: env(safe-area-inset-top);
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
             padding-bottom: 120px; 
-            color: #333; 
-            -webkit-tap-highlight-color: transparent; 
-            width: 100%; 
-            min-height: 100vh; 
-            position: relative;
-        }
-
-        /* 🌟 智能识别：只有在超过 1024px 的电脑/平板横屏上，才开启手机壳约束 */
-        @media screen and (min-width: 1024px) {
-            html { background-color: #E5E7EB; }
-            body { max-width: 480px; box-shadow: 0 0 30px rgba(0,0,0,0.15); padding-left: 0; padding-right: 0; }
+            color: #333; -webkit-tap-highlight-color: transparent; width: 100%; max-width: 480px; 
+            min-height: 100vh; box-shadow: 0 0 30px rgba(0,0,0,0.08); position: relative;
         }
 
         header { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); padding: 15px 25px; border-top: 15px solid var(--primary); position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(196, 30, 58, 0.08); transition: all 0.3s ease; }
@@ -108,7 +97,6 @@
         .note-yellow { background-color: #FFFDE7; color: #333; }
         .note-blue { background-color: #E1F5FE; color: #333; }
         .note-pink { background-color: #FCE4EC; color: #333; }
-        
         .note-arrow { color: #888; transition: transform 0.3s; }
         .note-card.open .note-arrow { transform: rotate(180deg); color: #C41E3A; }
         .note-body { display: none; padding: 15px; border-top: 1px solid #f0f0f0; background-color: #fff; color: #333; }
@@ -117,10 +105,11 @@
         .note-item-row { display: flex; align-items: center; font-size: 0.85rem; padding: 10px 0; border-bottom: 1px dashed #f0f0f0; }
         .note-item-row:last-child { border-bottom: none; padding-bottom: 0; }
         
-        .col-loc { width: 22%; padding-right: 6px; }
+        .col-loc { width: 18%; padding-right: 6px; }
         .col-shop { flex: 1; padding-right: 6px; }
         .col-nav { width: 40px; display: flex; justify-content: center; }
         .col-ref { width: 40px; display: flex; justify-content: center; }
+        .col-photo { width: 40px; display: flex; justify-content: center; } 
         
         .note-loc-text { color: #2E7D32; font-weight: 700; }
         .note-shop-text { color: #555; line-height: 1.4; }
@@ -129,17 +118,10 @@
         .note-sq-btn:active { transform: scale(0.95); }
         .btn-map { background: #FFF0F2; border: 1px solid #FDCED5; } 
         .btn-link { background: #F3F4F6; border: 1px solid #E5E7EB; } 
+        .btn-photo { background: #E1F5FE; border: 1px solid #B3E5FC; } 
 
-        /* 🌟 底部导航栏横屏防遮挡升级 */
-        .tab-bar { 
-            position: fixed; 
-            bottom: calc(25px + env(safe-area-inset-bottom)); 
-            left: 50%; transform: translateX(-50%); 
-            width: 85%; max-width: 400px; 
-            background: white; border-radius: 50px; 
-            display: flex; padding: 8px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; 
-        }
+        /* Nav Bar */
+        .tab-bar { position: fixed; bottom: calc(25px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: 85%; max-width: 400px; background: white; border-radius: 50px; display: flex; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; }
         .tab-item { flex: 1; text-align: center; color: #aaa; padding: 8px 0; border-radius: 30px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .tab-item.active { background: #FEE8EC; color: var(--primary); }
     </style>
@@ -280,7 +262,7 @@
             el.classList.add('active');
         }
 
-        // === 1. 行程逻辑 ===
+        // === 1. 🌟 修复：行程逻辑增加第 I 列 (Reference Pic) ===
         function loadItinerary() {
             Papa.parse(urls.itinerary, { 
                 download: true, 
@@ -302,7 +284,12 @@
                             if (!daysMap.has(colA)) { daysMap.set(colA, { n: colA, d: r[1] || '', l: r[3] || '行程', e: [] }); }
                             if (r[3] || r[4] || r[2]) {
                                 daysMap.get(colA).e.push({
-                                    time: r[2] || '', act: r[4] || r[3] || '', rem: r[5] || '', map: r[6] || '', ref: r[7] || ''
+                                    time: r[2] || '', 
+                                    act: r[4] || r[3] || '', 
+                                    rem: r[5] || '', 
+                                    map: r[6] || '', 
+                                    ref: r[7] || '',
+                                    pic: r[8] || ''  // 🌟 读取第 I 列的参考图 Link
                                 });
                             }
                         });
@@ -310,8 +297,10 @@
                         cont.innerHTML = "";
                         daysMap.forEach(d => {
                             let evs = d.e.map(e => {
+                                // 🌟 这里生成三个并排的漂亮按钮
                                 const mapLink = e.map && String(e.map).startsWith('http') ? `<a href="${e.map}" target="_blank" class="nav-btn">📍 路线</a>` : '';
                                 const refLink = e.ref && String(e.ref).startsWith('http') ? `<a href="${e.ref}" target="_blank" class="nav-btn" style="background: #444; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🔗 参考</a>` : '';
+                                const picLink = e.pic && String(e.pic).startsWith('http') ? `<a href="${e.pic}" target="_blank" class="nav-btn" style="background: #0277BD; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🖼️ 参考图</a>` : '';
                                 
                                 let remarkHtml = '';
                                 if(e.rem) {
@@ -319,7 +308,7 @@
                                     remarkHtml = `<div class="event-remark">${formattedRem}</div>`;
                                 }
 
-                                return `<div class="timeline-item"><div class="timeline-dot"></div><span class="event-time">${e.time}</span><div class="event-act">${e.act}</div>${remarkHtml}${mapLink || refLink ? `<div style="display: flex; gap: 8px; flex-wrap: wrap;">${mapLink}${refLink}</div>` : ''}</div>`;
+                                return `<div class="timeline-item"><div class="timeline-dot"></div><span class="event-time">${e.time}</span><div class="event-act">${e.act}</div>${remarkHtml}${mapLink || refLink || picLink ? `<div style="display: flex; gap: 8px; flex-wrap: wrap;">${mapLink}${refLink}${picLink}</div>` : ''}</div>`;
                             }).join('');
                             cont.innerHTML += `<div class="card"><div class="card-header" onclick="this.parentElement.classList.toggle('open')"><div class="header-left"><div class="day-num">${d.n}</div><div class="day-date">${d.d}</div></div><div class="header-right"><div class="day-title">${d.l}</div><i class="fas fa-chevron-down toggle-icon"></i></div></div><div class="card-body">${evs}</div></div>`;
                         });
@@ -387,20 +376,11 @@
                             
                             const color = r[1] || 'Green';
                             if(!notesMap.has(cat)) { notesMap.set(cat, { cat: cat, color: color, items: [] }); }
-                            
-                            if(r[2] || r[3]) { 
-                                notesMap.get(cat).items.push({ loc: r[2] || '', shop: r[3] || '', map: r[4] || '', ref: r[5] || '' }); 
-                            }
+                            if(r[2] || r[3]) { notesMap.get(cat).items.push({ loc: r[2] || '', shop: r[3] || '', map: r[4] || '', ref: r[5] || '', photo: r[6] || '' }); }
                         });
 
                         cont.innerHTML = "";
-                        
-                        const colorClassMap = {
-                            'green': 'note-green',
-                            'yellow': 'note-yellow',
-                            'blue': 'note-blue',
-                            'pink': 'note-pink'
-                        };
+                        const colorClassMap = { 'green': 'note-green', 'yellow': 'note-yellow', 'blue': 'note-blue', 'pink': 'note-pink' };
 
                         notesMap.forEach(n => {
                             const rawColor = String(n.color).toLowerCase().trim();
@@ -408,28 +388,14 @@
                             
                             let itemsHtml = n.items.map(i => {
                                 let formattedShop = String(i.shop).replace(/\n/g, '<br>');
-                                
                                 let mapHtml = i.map && String(i.map).startsWith('http') ? `<a href="${i.map}" target="_blank" class="note-sq-btn btn-map">📍</a>` : '';
                                 let refHtml = i.ref && String(i.ref).startsWith('http') ? `<a href="${i.ref}" target="_blank" class="note-sq-btn btn-link">🔗</a>` : '';
+                                let photoHtml = i.photo && String(i.photo).startsWith('http') ? `<a href="${i.photo}" target="_blank" class="note-sq-btn btn-photo">🖼️</a>` : '';
 
-                                return `
-                                <div class="note-item-row">
-                                    <div class="col-loc note-loc-text">${i.loc}</div>
-                                    <div class="col-shop note-shop-text">${formattedShop}</div>
-                                    <div class="col-nav">${mapHtml}</div>
-                                    <div class="col-ref">${refHtml}</div>
-                                </div>`;
+                                return `<div class="note-item-row"><div class="col-loc note-loc-text">${i.loc}</div><div class="col-shop note-shop-text">${formattedShop}</div><div class="col-nav">${mapHtml}</div><div class="col-ref">${refHtml}</div><div class="col-photo">${photoHtml}</div></div>`;
                             }).join('');
                             
-                            if (n.items.length > 0) { 
-                                itemsHtml = `
-                                <div class="note-item-header">
-                                    <div class="col-loc">地点</div>
-                                    <div class="col-shop">推荐店铺</div>
-                                    <div class="col-nav">导航</div>
-                                    <div class="col-ref">Link</div>
-                                </div>` + itemsHtml; 
-                            } 
+                            if (n.items.length > 0) { itemsHtml = `<div class="note-item-header"><div class="col-loc">地点</div><div class="col-shop">推荐店铺</div><div class="col-nav">导航</div><div class="col-ref">Link</div><div class="col-photo">参考图</div></div>` + itemsHtml; } 
                             else { itemsHtml = `<div style="text-align:center; color:#999; font-size:0.8rem;">暂无详细内容</div>`; }
                             
                             cont.innerHTML += `<div class="note-card"><div class="note-header ${bgClass}" onclick="this.parentElement.classList.toggle('open')"><div style="font-weight: 800; color: #333; font-size: 0.95rem;">${n.cat}</div><i class="fas fa-caret-down note-arrow"></i></div><div class="note-body">${itemsHtml}</div></div>`;
