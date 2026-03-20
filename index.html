@@ -44,16 +44,16 @@
         .expense-header { background: linear-gradient(135deg, #C41E3A, #A01830); color: white; padding: 25px 20px; text-align: center; margin: 15px; border-radius: 16px; box-shadow: 0 10px 20px rgba(196, 30, 58, 0.2); position: relative; }
         .total-num { font-size: 2.5rem; font-weight: 800; margin: 5px 0; }
         .rate-info { font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 4px 12px; border-radius: 20px; display: inline-block; color: rgba(255,255,255,0.9); }
-        .btn-copy-report { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; margin-top: 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: background 0.2s; }
+        
+        .btn-copy-report { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; margin-top: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: background 0.2s; white-space: nowrap; }
         .btn-copy-report:active { background: rgba(255,255,255,0.4); }
+        .btn-export { background: rgba(46, 125, 50, 0.9); border: 1px solid rgba(46, 125, 50, 1); } 
+        
         .input-card { background: white; margin: 0 15px 20px; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .input-group { display: flex; gap: 10px; margin-bottom: 12px; }
         .form-input { flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 8px; font-size: 1rem; outline: none; background: #fff; min-width: 0; box-sizing: border-box; }
-        
-        /* 下拉菜单细节优化 */
         select.form-input optgroup { font-weight: bold; color: #666; font-size: 0.9rem; }
         select.form-input option { font-weight: normal; color: #333; font-size: 1rem; }
-        
         .cat-select { flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 8px; background: white; font-size: 0.9rem; font-weight: 600; color: #333; outline: none; min-width: 0; box-sizing: border-box; }
         .btn-submit { width: 100%; background: #1a1a1a; color: white; padding: 14px; border-radius: 10px; font-weight: 700; border: none; font-size: 1rem; cursor: pointer; }
         .expense-list { padding: 0 15px; }
@@ -155,8 +155,9 @@
                 <div id="settle-text" style="color: rgba(255,255,255,0.9);">计算中...</div>
             </div>
             
-            <div>
+            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: nowrap; width: 100%;">
                 <button class="btn-copy-report" onclick="copyReport()"><i class="fas fa-clipboard-list"></i> 复制账单给家人</button>
+                <button class="btn-copy-report btn-export" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> Export</button>
             </div>
         </div>
 
@@ -396,7 +397,7 @@
             });
         }
 
-        // === 4. 🌟 全新记账与平账核心算法 ===
+        // === 4. 记账与结账逻辑 ===
         function loadSettings() {
             Papa.parse(urls.settings, { 
                 download: true, 
@@ -419,7 +420,7 @@
             const amt = parseFloat(document.getElementById('amt-input').value);
             const note = document.getElementById('note-input').value;
             const cat = document.getElementById('cat-input').value;
-            const payer = document.getElementById('payer-input').value; // 这里拿到的是新的 ID
+            const payer = document.getElementById('payer-input').value;
             const datetimeVal = document.getElementById('datetime-input').value;
             
             if (!amt) return alert("请输入金额");
@@ -443,7 +444,6 @@
         function settleDebt(payer, receiver, amount) {
             if(!confirm(`确定已结清？将记录: ${payer} 转账给 ${receiver} ${amount} JPY`)) return;
             const now = new Date();
-            // 结账特属分类，依然使用老逻辑以保持简单和兼容
             const newEx = { id: Date.now(), amount: amount, note: `${payer} ➔ ${receiver}`, cat: 'Settlement', payer: payer, icon: 'fa-exchange-alt', timestamp: now.getTime() };
             expenses.push(newEx);
             localStorage.setItem('my_trip_expenses', JSON.stringify(expenses));
@@ -458,8 +458,7 @@
             }
 
             const list = document.getElementById('expense-list'); list.innerHTML = '';
-            let totalHome = 0; let totalForeign = 0; 
-            let totalXKYM = 0; let totalCLAL = 0;
+            let totalHome = 0; let totalForeign = 0; let totalXKYM = 0; let totalCLAL = 0;
 
             expenses.sort((a, b) => { return (b.timestamp || b.id) - (a.timestamp || a.id); });
 
@@ -469,35 +468,22 @@
                 const amt = parseFloat(e.amount);
                 const homeVal = amt * config.rate;
                 const isSettlement = (e.cat === 'Settlement');
-
-                // 💡 兼容老数据：如果读取到旧版本存的 'XK YM'，自动映射为共享
+                
                 let type = e.payer || 'shared_xkym';
                 if (type === 'XK YM') type = 'shared_xkym';
                 if (type === 'CL AL') type = 'shared_clal';
 
                 if (isSettlement) {
-                    // 结账：谁付了钱平账，谁的账户总额就增加，抵消欠款
                     if (e.payer === 'CL AL') { totalCLAL += amt; totalXKYM -= amt; } 
                     else { totalXKYM += amt; totalCLAL -= amt; }
                 } else {
-                    // 只要花出去了，统统算进本次旅行总花费！
                     totalHome += homeVal; totalForeign += amt; 
-                    
-                    // 🌟 核心算法：不同的付款方式，对平账产生不同影响
-                    if (type === 'shared_xkym') {
-                        totalXKYM += amt; // XK 共享付款，产生正常债务
-                    } else if (type === 'shared_clal') {
-                        totalCLAL += amt; // CL 共享付款，产生正常债务
-                    } else if (type === 'advance_xkym') {
-                        totalXKYM += (amt * 2); // XK 垫付（对方要全额还），巧妙地乘以2放大差额！
-                    } else if (type === 'advance_clal') {
-                        totalCLAL += (amt * 2); // CL 垫付（对方要全额还）
-                    } else if (type === 'personal_xk' || type === 'personal_ym') {
-                        // 个人私账，绝对不改变双方的债务关系！什么都不加！
-                    }
+                    if (type === 'shared_xkym') { totalXKYM += amt; } 
+                    else if (type === 'shared_clal') { totalCLAL += amt; } 
+                    else if (type === 'advance_xkym') { totalXKYM += (amt * 2); } 
+                    else if (type === 'advance_clal') { totalCLAL += (amt * 2); } 
                 }
 
-                // 准备在页面显示的身份标签
                 let displayPayer = '';
                 if (type === 'shared_xkym') displayPayer = '👨‍👩‍👧‍👦 XK&YM (共享)';
                 else if (type === 'shared_clal') displayPayer = '👨‍👩‍👧‍👦 CL&AL (共享)';
@@ -505,7 +491,7 @@
                 else if (type === 'advance_clal') displayPayer = '🎯 CL&AL (帮垫付)';
                 else if (type === 'personal_xk') displayPayer = '👦 XK (个人)';
                 else if (type === 'personal_ym') displayPayer = '👩 YM (个人)';
-                else displayPayer = type; // 保底
+                else displayPayer = type;
 
                 const dateObj = new Date(e.timestamp || e.id);
                 const dateStr = dateObj.toLocaleDateString(); 
@@ -520,8 +506,6 @@
                 const bgCol = isSettlement ? '#E8F5E9' : '#FFF0F2';
                 const textCol = isSettlement ? '#2E7D32' : '#C41E3A';
                 const titleNote = isSettlement ? '🤝 结账清零' : e.note;
-                
-                // 列表小字显示优化
                 const payerNote = isSettlement ? `🕒 ${timeStr} • <strong style="color:${textCol}">${e.note}</strong>` : `🕒 ${timeStr} • <strong style="color:${textCol}">${displayPayer}</strong>`;
 
                 list.innerHTML += `<div class="expense-item"><div style="display:flex; align-items:center; gap:12px;"><div style="width:40px;height:40px;background:${bgCol};color:${textCol};border-radius:10px;display:flex;align-items:center;justify-content:center"><i class="fas ${iconClass}"></i></div><div><div style="font-weight:700;color:#333">${titleNote}</div><div style="font-size:0.75rem;color:#999;margin-top:2px">${payerNote}</div></div></div><div style="text-align:right"><div style="font-weight:800;font-size:1.1rem;color:${textCol}">${amt.toLocaleString()} ${config.foreign}</div>${isSettlement ? '' : `<div style="font-size:0.75rem;color:#bbb">≈ ${homeVal.toFixed(2)} ${config.home}</div>`}<button class="btn-del" onclick="deleteEx(${e.id})">×</button></div></div>`;
@@ -529,7 +513,6 @@
             
             document.getElementById('display-total').innerText = `${totalForeign.toLocaleString()} ${config.foreign}`;
 
-            // 计算差额 (这部分不动，因为我们在上面已经做好了数学铺垫)
             const diff = totalXKYM - totalCLAL;
             const oweAmountNum = Math.round(Math.abs(diff / 2)); 
             const oweAmountStr = oweAmountNum.toLocaleString(); 
@@ -570,6 +553,53 @@
             report += `Generated by XK Travel App`;
             const el = document.createElement('textarea'); el.value = report; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
             alert("✅ 账单已复制！快去发给群组结账吧。");
+        }
+
+        // 🌟 新增：导出为 Excel (CSV) 功能
+        function exportToCSV() {
+            if (expenses.length === 0) return alert("还没有任何记账记录哦！");
+
+            let exportData = expenses.map(e => {
+                const dateObj = new Date(e.timestamp || e.id);
+                const dateStr = dateObj.toLocaleDateString();
+                const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const amt = parseFloat(e.amount);
+                const homeVal = (amt * config.rate).toFixed(2);
+
+                let type = e.payer || 'shared_xkym';
+                if (type === 'XK YM') type = 'shared_xkym';
+                if (type === 'CL AL') type = 'shared_clal';
+
+                let displayPayer = '';
+                if (type === 'shared_xkym') displayPayer = 'XK&YM (共享)';
+                else if (type === 'shared_clal') displayPayer = 'CL&AL (共享)';
+                else if (type === 'advance_xkym') displayPayer = 'XK&YM (帮垫付)';
+                else if (type === 'advance_clal') displayPayer = 'CL&AL (帮垫付)';
+                else if (type === 'personal_xk') displayPayer = 'XK (个人开销)';
+                else if (type === 'personal_ym') displayPayer = 'YM (个人开销)';
+                else if (e.cat === 'Settlement') displayPayer = '结账清零';
+
+                return {
+                    "日期 (Date)": dateStr,
+                    "时间 (Time)": timeStr,
+                    "分类 (Category)": e.cat,
+                    "明细/备注 (Item/Note)": e.note,
+                    "付款类型 (Payer Type)": displayPayer,
+                    [`金额 (${config.foreign})`]: amt,
+                    [`折合 (${config.home})`]: homeVal
+                };
+            });
+
+            const csv = Papa.unparse(exportData);
+            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "2026_Japan_Trip_Expenses.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
