@@ -49,6 +49,11 @@
         .input-card { background: white; margin: 0 15px 20px; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .input-group { display: flex; gap: 10px; margin-bottom: 12px; }
         .form-input { flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 8px; font-size: 1rem; outline: none; background: #fff; min-width: 0; box-sizing: border-box; }
+        
+        /* 下拉菜单细节优化 */
+        select.form-input optgroup { font-weight: bold; color: #666; font-size: 0.9rem; }
+        select.form-input option { font-weight: normal; color: #333; font-size: 1rem; }
+        
         .cat-select { flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 8px; background: white; font-size: 0.9rem; font-weight: 600; color: #333; outline: none; min-width: 0; box-sizing: border-box; }
         .btn-submit { width: 100%; background: #1a1a1a; color: white; padding: 14px; border-radius: 10px; font-weight: 700; border: none; font-size: 1rem; cursor: pointer; }
         .expense-list { padding: 0 15px; }
@@ -136,21 +141,8 @@
         </div>
     </header>
 
-    <div id="tab-itinerary" class="tab-content active">
-        <div id="itinerary-container">
-            <div style="padding:40px 20px; text-align:center; color:#888;">
-                <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px; color:#C41E3A;"></i><br>正在加载行程...
-            </div>
-        </div>
-    </div>
-    
-    <div id="tab-hotel" class="tab-content">
-        <div id="hotel-container">
-            <div style="padding:40px 20px; text-align:center; color:#888;">
-                <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px; color:#C41E3A;"></i><br>正在加载酒店...
-            </div>
-        </div>
-    </div>
+    <div id="tab-itinerary" class="tab-content active"><div id="itinerary-container"><div style="padding:40px 20px; text-align:center; color:#888;"><i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px; color:#C41E3A;"></i><br>正在加载行程...</div></div></div>
+    <div id="tab-hotel" class="tab-content"><div id="hotel-container"><div style="padding:40px 20px; text-align:center; color:#888;"><i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px; color:#C41E3A;"></i><br>正在加载酒店...</div></div></div>
     
     <div id="tab-expense" class="tab-content">
         <div class="expense-header">
@@ -172,10 +164,21 @@
             <div class="input-group">
                 <input type="datetime-local" id="datetime-input" class="form-input" style="color: #555; font-weight: 600; font-size: 0.9rem;">
             </div>
+            
             <div class="input-group">
                 <select id="payer-input" class="form-input" style="font-weight: 800; color: #C41E3A; background: #FFF0F2; border: 1px solid #FDCED5;">
-                    <option value="XK YM">💳 这笔由 XK & YM 付款</option>
-                    <option value="CL AL">💳 这笔由 CL & AL 付款</option>
+                    <optgroup label="👨‍👩‍👧‍👦 共享开销 (AA平摊)">
+                        <option value="shared_xkym">💳 XK & YM 付款 (共享)</option>
+                        <option value="shared_clal">💳 CL & AL 付款 (共享)</option>
+                    </optgroup>
+                    <optgroup label="🎯 帮人垫付 (全额计入欠款)">
+                        <option value="advance_xkym">🎯 XK&YM 帮垫付 (CL&AL全还)</option>
+                        <option value="advance_clal">🎯 CL&AL 帮垫付 (XK&YM全还)</option>
+                    </optgroup>
+                    <optgroup label="👤 个人私账 (不参与平账)">
+                        <option value="personal_xk">👦 XK 个人开销</option>
+                        <option value="personal_ym">👩 YM 个人开销</option>
+                    </optgroup>
                 </select>
             </div>
 
@@ -202,13 +205,7 @@
         <div id="expense-list" style="padding:0 15px;"></div>
     </div>
     
-    <div id="tab-other" class="tab-content">
-        <div id="other-container">
-            <div style="padding:40px 20px; text-align:center; color:#888;">
-                <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px; color:#C41E3A;"></i><br>正在加载其他清单...
-            </div>
-        </div>
-    </div>
+    <div id="tab-other" class="tab-content"><div id="other-container"><div style="padding:40px 20px; text-align:center; color:#888;"><i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px; color:#C41E3A;"></i><br>正在加载其他清单...</div></div></div>
 
     <nav class="tab-bar">
         <div class="tab-item active" onclick="switchTab('itinerary', this)"><span>📅</span>行程</div>
@@ -262,7 +259,7 @@
             el.classList.add('active');
         }
 
-        // === 1. 🌟 修复：行程逻辑增加第 I 列 (Reference Pic) ===
+        // === 1. 行程逻辑 ===
         function loadItinerary() {
             Papa.parse(urls.itinerary, { 
                 download: true, 
@@ -284,12 +281,7 @@
                             if (!daysMap.has(colA)) { daysMap.set(colA, { n: colA, d: r[1] || '', l: r[3] || '行程', e: [] }); }
                             if (r[3] || r[4] || r[2]) {
                                 daysMap.get(colA).e.push({
-                                    time: r[2] || '', 
-                                    act: r[4] || r[3] || '', 
-                                    rem: r[5] || '', 
-                                    map: r[6] || '', 
-                                    ref: r[7] || '',
-                                    pic: r[8] || ''  // 🌟 读取第 I 列的参考图 Link
+                                    time: r[2] || '', act: r[4] || r[3] || '', rem: r[5] || '', map: r[6] || '', ref: r[7] || '', pic: r[8] || ''
                                 });
                             }
                         });
@@ -297,7 +289,6 @@
                         cont.innerHTML = "";
                         daysMap.forEach(d => {
                             let evs = d.e.map(e => {
-                                // 🌟 这里生成三个并排的漂亮按钮
                                 const mapLink = e.map && String(e.map).startsWith('http') ? `<a href="${e.map}" target="_blank" class="nav-btn">📍 路线</a>` : '';
                                 const refLink = e.ref && String(e.ref).startsWith('http') ? `<a href="${e.ref}" target="_blank" class="nav-btn" style="background: #444; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🔗 参考</a>` : '';
                                 const picLink = e.pic && String(e.pic).startsWith('http') ? `<a href="${e.pic}" target="_blank" class="nav-btn" style="background: #0277BD; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🖼️ 参考图</a>` : '';
@@ -405,7 +396,7 @@
             });
         }
 
-        // === 4. 记账与结账逻辑 ===
+        // === 4. 🌟 全新记账与平账核心算法 ===
         function loadSettings() {
             Papa.parse(urls.settings, { 
                 download: true, 
@@ -428,7 +419,7 @@
             const amt = parseFloat(document.getElementById('amt-input').value);
             const note = document.getElementById('note-input').value;
             const cat = document.getElementById('cat-input').value;
-            const payer = document.getElementById('payer-input').value;
+            const payer = document.getElementById('payer-input').value; // 这里拿到的是新的 ID
             const datetimeVal = document.getElementById('datetime-input').value;
             
             if (!amt) return alert("请输入金额");
@@ -452,6 +443,7 @@
         function settleDebt(payer, receiver, amount) {
             if(!confirm(`确定已结清？将记录: ${payer} 转账给 ${receiver} ${amount} JPY`)) return;
             const now = new Date();
+            // 结账特属分类，依然使用老逻辑以保持简单和兼容
             const newEx = { id: Date.now(), amount: amount, note: `${payer} ➔ ${receiver}`, cat: 'Settlement', payer: payer, icon: 'fa-exchange-alt', timestamp: now.getTime() };
             expenses.push(newEx);
             localStorage.setItem('my_trip_expenses', JSON.stringify(expenses));
@@ -466,7 +458,8 @@
             }
 
             const list = document.getElementById('expense-list'); list.innerHTML = '';
-            let totalHome = 0; let totalForeign = 0; let totalXKYM = 0; let totalCLAL = 0;
+            let totalHome = 0; let totalForeign = 0; 
+            let totalXKYM = 0; let totalCLAL = 0;
 
             expenses.sort((a, b) => { return (b.timestamp || b.id) - (a.timestamp || a.id); });
 
@@ -475,16 +468,44 @@
             expenses.forEach(e => {
                 const amt = parseFloat(e.amount);
                 const homeVal = amt * config.rate;
-                const currentPayer = e.payer || 'XK YM';
                 const isSettlement = (e.cat === 'Settlement');
 
+                // 💡 兼容老数据：如果读取到旧版本存的 'XK YM'，自动映射为共享
+                let type = e.payer || 'shared_xkym';
+                if (type === 'XK YM') type = 'shared_xkym';
+                if (type === 'CL AL') type = 'shared_clal';
+
                 if (isSettlement) {
-                    if (currentPayer === 'CL AL') { totalCLAL += amt; totalXKYM -= amt; } 
+                    // 结账：谁付了钱平账，谁的账户总额就增加，抵消欠款
+                    if (e.payer === 'CL AL') { totalCLAL += amt; totalXKYM -= amt; } 
                     else { totalXKYM += amt; totalCLAL -= amt; }
                 } else {
+                    // 只要花出去了，统统算进本次旅行总花费！
                     totalHome += homeVal; totalForeign += amt; 
-                    if(currentPayer === 'XK YM') { totalXKYM += amt; } else { totalCLAL += amt; }
+                    
+                    // 🌟 核心算法：不同的付款方式，对平账产生不同影响
+                    if (type === 'shared_xkym') {
+                        totalXKYM += amt; // XK 共享付款，产生正常债务
+                    } else if (type === 'shared_clal') {
+                        totalCLAL += amt; // CL 共享付款，产生正常债务
+                    } else if (type === 'advance_xkym') {
+                        totalXKYM += (amt * 2); // XK 垫付（对方要全额还），巧妙地乘以2放大差额！
+                    } else if (type === 'advance_clal') {
+                        totalCLAL += (amt * 2); // CL 垫付（对方要全额还）
+                    } else if (type === 'personal_xk' || type === 'personal_ym') {
+                        // 个人私账，绝对不改变双方的债务关系！什么都不加！
+                    }
                 }
+
+                // 准备在页面显示的身份标签
+                let displayPayer = '';
+                if (type === 'shared_xkym') displayPayer = '👨‍👩‍👧‍👦 XK&YM (共享)';
+                else if (type === 'shared_clal') displayPayer = '👨‍👩‍👧‍👦 CL&AL (共享)';
+                else if (type === 'advance_xkym') displayPayer = '🎯 XK&YM (帮垫付)';
+                else if (type === 'advance_clal') displayPayer = '🎯 CL&AL (帮垫付)';
+                else if (type === 'personal_xk') displayPayer = '👦 XK (个人)';
+                else if (type === 'personal_ym') displayPayer = '👩 YM (个人)';
+                else displayPayer = type; // 保底
 
                 const dateObj = new Date(e.timestamp || e.id);
                 const dateStr = dateObj.toLocaleDateString(); 
@@ -499,13 +520,16 @@
                 const bgCol = isSettlement ? '#E8F5E9' : '#FFF0F2';
                 const textCol = isSettlement ? '#2E7D32' : '#C41E3A';
                 const titleNote = isSettlement ? '🤝 结账清零' : e.note;
-                const payerNote = isSettlement ? `🕒 ${timeStr} • <strong style="color:${textCol}">${e.note}</strong>` : `🕒 ${timeStr} • <strong style="color:${textCol}">${currentPayer}</strong> 付款`;
+                
+                // 列表小字显示优化
+                const payerNote = isSettlement ? `🕒 ${timeStr} • <strong style="color:${textCol}">${e.note}</strong>` : `🕒 ${timeStr} • <strong style="color:${textCol}">${displayPayer}</strong>`;
 
                 list.innerHTML += `<div class="expense-item"><div style="display:flex; align-items:center; gap:12px;"><div style="width:40px;height:40px;background:${bgCol};color:${textCol};border-radius:10px;display:flex;align-items:center;justify-content:center"><i class="fas ${iconClass}"></i></div><div><div style="font-weight:700;color:#333">${titleNote}</div><div style="font-size:0.75rem;color:#999;margin-top:2px">${payerNote}</div></div></div><div style="text-align:right"><div style="font-weight:800;font-size:1.1rem;color:${textCol}">${amt.toLocaleString()} ${config.foreign}</div>${isSettlement ? '' : `<div style="font-size:0.75rem;color:#bbb">≈ ${homeVal.toFixed(2)} ${config.home}</div>`}<button class="btn-del" onclick="deleteEx(${e.id})">×</button></div></div>`;
             });
             
             document.getElementById('display-total').innerText = `${totalForeign.toLocaleString()} ${config.foreign}`;
 
+            // 计算差额 (这部分不动，因为我们在上面已经做好了数学铺垫)
             const diff = totalXKYM - totalCLAL;
             const oweAmountNum = Math.round(Math.abs(diff / 2)); 
             const oweAmountStr = oweAmountNum.toLocaleString(); 
@@ -525,10 +549,23 @@
             if (expenses.length === 0) return alert("还没有记账记录哦！");
             let report = `🧾 旅游消费账单 (${new Date().toLocaleDateString()})\n------------------------\n💰 总支出: ${document.getElementById('display-total').innerText}\n------------------------\n⚖️ 【结账结果】\n${document.getElementById('settle-text').innerText.replace('✅ Settled', '')}\n------------------------\n\n`;
             expenses.forEach(e => {
-                const amt = parseFloat(e.amount); const homeVal = (amt * config.rate).toFixed(2); const payer = e.payer || 'XK YM';
+                const amt = parseFloat(e.amount); const homeVal = (amt * config.rate).toFixed(2);
                 const dateObj = new Date(e.timestamp || e.id); const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                let type = e.payer || 'shared_xkym';
+                if (type === 'XK YM') type = 'shared_xkym';
+                if (type === 'CL AL') type = 'shared_clal';
+                
+                let displayPayer = '';
+                if (type === 'shared_xkym') displayPayer = 'XK&YM (共享)';
+                else if (type === 'shared_clal') displayPayer = 'CL&AL (共享)';
+                else if (type === 'advance_xkym') displayPayer = 'XK&YM (帮垫付)';
+                else if (type === 'advance_clal') displayPayer = 'CL&AL (帮垫付)';
+                else if (type === 'personal_xk') displayPayer = 'XK (个人)';
+                else if (type === 'personal_ym') displayPayer = 'YM (个人)';
+                
                 if (e.cat === 'Settlement') { report += `▪️ [${dateObj.toLocaleDateString()} ${timeStr}] 🤝 结账清零\n   ${e.note} ${amt} ${config.foreign}\n\n`; } 
-                else { report += `▪️ [${dateObj.toLocaleDateString()} ${timeStr}] ${e.note}\n   ${amt} ${config.foreign} (≈ ${homeVal} ${config.home}) | ${payer} 付款\n\n`; }
+                else { report += `▪️ [${dateObj.toLocaleDateString()} ${timeStr}] ${e.note}\n   ${amt} ${config.foreign} (≈ ${homeVal} ${config.home}) | ${displayPayer}\n\n`; }
             });
             report += `Generated by XK Travel App`;
             const el = document.createElement('textarea'); el.value = report; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
